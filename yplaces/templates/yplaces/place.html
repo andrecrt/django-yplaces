@@ -1,0 +1,166 @@
+{% extends 'yplaces/base.html' %}
+
+{% load staticfiles %}
+
+{% block body %}
+
+<div class="place">
+
+  <!--
+    Left Container
+  -->
+	<div class="left-container">
+    
+    <!-- Details -->
+    <div class="details">
+
+      <!-- Name & Address -->
+      <div class="name">
+  			<div class="picture">
+  				<img src="{% static 'yplaces/images/default_place_picture.png' %}">
+  			</div>
+        <div class="address">
+          <h1>{{ place.name }}</h1>
+          <p>
+            {{ place.address }}, {{ place.postal_code }} {{ place.city }}
+            <br>
+            {{ place.country }}
+          </p>
+        </div>
+        <div class="clear"></div>
+      </div>
+
+      <!-- Contacts -->
+      <div class="contacts">
+        <ul>
+          <li>
+            <i class="fa fa-arrows"></i>
+            <a href="http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude }},{{ place.longitude }}&z=17" target="_blank">Directions</a>
+          </li>
+          {% if place.phone_number %}
+            <li>
+              <i class="fa fa-phone"></i>
+              <span class="value">{{ place.phone_number }}</span>
+            </li>
+          {% endif %}
+          {% if place.email %}
+            <li>
+              <i class="fa fa-envelope"></i>
+              <span class="value"><a href="mailto:{{ place.email }}" target="_blank">{{ place.email }}</a></span>
+            </li>
+          {% endif %}
+          {% if place.website %}
+            <li>
+              <i class="fa fa-link"></i>
+              <span class="value"><a href="{{ place.website }}" target="_blank">Website</a></span>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Average Rating -->
+      <div class="rating" style="background-color: #f4f3f1; padding: 20px; text-align: center;">
+        
+        <!-- Star 1 -->
+        {% if rating < 10 %}
+          <i class="fa fa-star-o fa-3x"></i>
+        {% else %}
+          {% if rating >= 10 and rating < 20 %}
+            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
+          {% else %}
+            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
+          {% endif %}
+        {% endif %}
+
+        <!-- Star 2 -->
+        {% if rating < 30 %}
+          <i class="fa fa-star-o fa-3x"></i>
+        {% else %}
+          {% if rating >= 30 and rating < 40 %}
+            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
+          {% else %}
+            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
+          {% endif %}
+        {% endif %}
+
+        <!-- Star 3 -->
+        {% if rating < 50 %}
+          <i class="fa fa-star-o fa-3x"></i>
+        {% else %}
+          {% if rating >= 50 and rating < 60 %}
+            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
+          {% else %}
+            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
+          {% endif %}
+        {% endif %}
+
+        <!-- Star 4 -->
+        {% if rating < 70 %}
+          <i class="fa fa-star-o fa-3x"></i>
+        {% else %}
+          {% if rating >= 70 and rating < 80 %}
+            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
+          {% else %}
+            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
+          {% endif %}
+        {% endif %}
+
+        <!-- Star 5 -->
+        {% if rating < 90 %}
+          <i class="fa fa-star-o fa-3x"></i>
+        {% else %}
+          {% if rating >= 90 and rating < 100 %}
+            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
+          {% else %}
+            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
+          {% endif %}
+        {% endif %}
+        
+      </div>
+
+		</div>
+	</div>
+	
+  <!--
+    Right Container
+  -->
+  <div class="right-container">
+		
+    <!-- Map -->
+    <div id="map" style="height: 250px;">
+    </div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script type="application/javascript">
+     /*
+      * Google Maps
+      */
+      function initialize(){
+      
+        // Load the map with the restaurant's coordinates
+        var latlng = new google.maps.LatLng({{ place.latitude }}, {{ place.longitude }});
+        var myOptions = {
+          zoom: 15,
+          center: latlng,
+          //disableDefaultUI: true,
+          navigationControl: true,
+          scrollwheel: false,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+        };
+        var map = new google.maps.Map(document.getElementById('map'), myOptions);
+      
+        // Place a marker
+        var marker = new google.maps.Marker({
+          position: latlng,
+          map: map,
+          title: '{{ place.name }}'
+        });
+      }
+      window.onload = initialize;
+  </script>
+{% endblock %}

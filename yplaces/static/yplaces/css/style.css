@@ -1,0 +1,89 @@
+body {
+	background-color: #eae8e4;
+}
+
+/**
+ * Place page.
+ */
+
+.clear {
+    clear: both;
+}
+
+.place {
+    margin: 30px auto 30px auto;
+    width: 970px;    
+}.place .left-container {
+    border: 0px solid;
+    width: 636px;
+    float: left;
+}
+
+.place .left-container .details {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    -webkit-box-shadow: #cccccc 1px 1px 1px;
+    -moz-box-shadow: #cccccc 1px 1px 1px;
+    box-shadow: #cccccc 1px 1px 1px;
+}
+
+.place .left-container .details .name {
+    padding: 20px 20px 20px 20px;
+}
+
+.place .left-container .details .name .picture {
+    width: 90px;
+    float: left;
+}
+
+.place .left-container .details .name .address {
+    float: left;
+    margin-left: 20px;
+}
+
+.place .left-container .details .name .address h1 {
+    margin: 0px;
+}
+
+.place .left-container .details .name .address p {
+    margin: 5px 0 0px;
+}
+
+.place .left-container .details .contacts {
+	border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 10px 20px 10px 20px;
+    font-size: 10pt;
+}
+
+.place .left-container .details .contacts ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.place .left-container .details .contacts ul li {
+    display: inline;
+    margin-left: 15px;
+}
+
+.place .left-container .details .contacts ul li:first-child {
+    margin-left: 0;
+}
+
+.place .right-container {
+    width: 303px;
+    float: right;
+}
+
+.place .right-container #map {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    -webkit-box-shadow: #cccccc 1px 1px 1px;
+    -moz-box-shadow: #cccccc 1px 1px 1px;
+    box-shadow: #cccccc 1px 1px 1px;
+}
