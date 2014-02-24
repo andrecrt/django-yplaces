@@ -14,6 +14,13 @@ class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
         
+
+class PhotoForm(forms.Form):
+    """
+    Form for Place's photos.
+    """
+    file = forms.ImageField()
+        
         
 class ReviewForm(forms.ModelForm):
     """

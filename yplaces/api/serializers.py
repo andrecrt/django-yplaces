@@ -32,6 +32,9 @@ class PlaceSerializer(BaseSerializer):
             'phone_number': obj.phone_number,
             'website': obj.website,
             'description': obj.description,
+            'photos': {
+                'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:photos', args=[obj.pk])
+            },
             'reviews': {
                 'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[obj.pk])
             },
@@ -52,6 +55,26 @@ class PlaceSerializer(BaseSerializer):
                 },
                 'active': obj.active
             })
+        
+        # Return.
+        return simple
+
+
+class PhotoSerializer(BaseSerializer):
+    """
+    Adds methods required for instance serialization.
+    """
+        
+    def to_simple(self, obj, user=None):
+        """
+        Please refer to the interface documentation.
+        """
+        # Build response.
+        simple = {
+            'id': obj.pk,
+            'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:photo_id', args=[obj.place.pk, obj.pk]),
+            'image_url': obj.file.url
+        }
         
         # Return.
         return simple
@@ -84,6 +107,14 @@ class ReviewSerializer(BaseSerializer):
                 'rating': { 'average': 0, 'reviews': 0 }
             }
         }
+        
+        # Review's photo.
+        if obj.photo:
+            simple['photo'] = {
+                'id': obj.photo.pk,
+                'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:photo_id', args=[obj.place.pk, obj.photo.pk]),
+                'image_url': obj.photo.file.url
+            }
         
         # Place's rating.
         rating = obj.place.get_rating()

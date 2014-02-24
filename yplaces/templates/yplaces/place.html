@@ -81,17 +81,19 @@
     <!-- Photos -->
     <div class="photos">
       <div>
-        <img src="{% static 'yplaces/images/francesinha.jpg' %}" class="img-thumbnail">
+        <img src="{{ photos.0 }}" class="img-thumbnail">
       </div>
       <div>
-        <img src="{% static 'yplaces/images/francesinha2.jpg' %}" class="img-thumbnail">
+        <img src="{{ photos.1 }}" class="img-thumbnail">
       </div>
       <div>
-        <img src="{% static 'yplaces/images/francesinha3.jpg' %}" class="img-thumbnail">
+        <img src="{{ photos.2 }}" class="img-thumbnail">
       </div>
       <div>
-        <i class="fa fa-picture-o fa-5x"></i>
-        <p><strong>{% trans 'View All' %}</strong></p>
+        <a href="{% url 'yplaces:photos' pk=place.pk slug=place.name|slugify %}" style="color: #000;">
+          <i class="fa fa-picture-o fa-5x"></i>
+          <p><strong>{% trans 'View All' %}</strong></p>
+        </a>
       </div>
     </div>
 
@@ -118,6 +120,10 @@
             <div class="message">
               {{ review.comment }}
               <br>
+              {% if review.photo %}
+              <img src="{{ review.photo.file.url }}" style="width: 50%; margin: 10px 0 10px 0;" class="img-thumbnail">
+              <br>
+              {% endif %}
               <span>{{ review.user.name }} // {{ review.date }}</span>
             </div>
           </div>

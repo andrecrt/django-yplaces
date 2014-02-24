@@ -32,13 +32,32 @@ def place_slug(request, pk, slug):
     """
     Returns page for the place with the given ID.
     """
+    # Fetch Place with given ID.
     try:
         place = Place.objects.get(pk=pk, active=True)
     except ObjectDoesNotExist:
         raise Http404
+    
+    # Highlighted Photos.
+    photo_placeholder_url = settings.HOST_URL + settings.STATIC_URL + 'yplaces/images/photo_placeholder.png'
+    photos = [photo_placeholder_url, photo_placeholder_url, photo_placeholder_url]
+    for idx, photo in enumerate(place.photo_set.all()):
+        if idx < 3:
+            photos[idx] = photo.file.url
+        else:
+            break
 
     # Render page
     return render_to_response('yplaces/place.html',
-                              { 'place': place, 'rating': place.get_rating(),
+                              { 'place': place,
+                               'rating': place.get_rating(),
+                               'photos': photos,
                                'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]) },
                               context_instance=RequestContext(request))
+    
+    
+def photos(request, pk, slug):
+    """
+    Renders the Place's photo gallery.
+    """
+    return HttpResponse('Place Photo Gallery')
