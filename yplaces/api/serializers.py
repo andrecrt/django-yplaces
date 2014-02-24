@@ -34,15 +34,14 @@ class PlaceSerializer(BaseSerializer):
             'description': obj.description,
             'reviews': {
                 'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[obj.pk])
-            }
+            },
+            'rating': { 'average': 0, 'reviews': 0 }
         }
         
         # Place's rating.
         rating = obj.get_rating()
         if rating:
             simple['rating'] = { 'average': rating.average, 'reviews': rating.reviews }
-        else:
-            simple['rating'] = { 'average': 0, 'reviews': 0 }
         
         # If user is staff, add aditional info.
         if user and user.is_staff:
@@ -78,8 +77,18 @@ class ReviewSerializer(BaseSerializer):
             'date': obj.date.strftime('%Y-%m-%d %H:%M:%S'),
             'rating': obj.rating,
             'comment': obj.comment,
-            'photo': None
+            'photo': None,
+            'place': {
+                'name': obj.place.name,
+                'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:id', args=[obj.place.pk]),
+                'rating': { 'average': 0, 'reviews': 0 }
+            }
         }
+        
+        # Place's rating.
+        rating = obj.place.get_rating()
+        if rating:
+            simple['place']['rating'] = { 'average': rating.average, 'reviews': rating.reviews }
         
         # Return.
         return simple

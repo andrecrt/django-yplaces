@@ -1,4 +1,5 @@
 import logging
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
@@ -38,5 +39,6 @@ def place_slug(request, pk, slug):
 
     # Render page
     return render_to_response('yplaces/place.html',
-                              { 'place': place, 'rating': place.get_rating() },
+                              { 'place': place, 'rating': place.get_rating(),
+                               'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]) },
                               context_instance=RequestContext(request))

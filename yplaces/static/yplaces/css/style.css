@@ -176,3 +176,24 @@ body {
     background: url(../images/star_small.png) transparent 0 0 repeat-x; 
     height: 16px;
 }
+.star-rating-dynamic {
+    text-align: left;
+    font-size: 41px;
+    cursor: pointer;
+}
+.star-rating-dynamic {
+  unicode-bidi: bidi-override;
+  direction: rtl;
+}
+.star-rating-dynamic > span {
+  display: inline-block;
+  position: relative;
+  width: 1.1em;
+}
+.star-rating-dynamic > span:hover:before,
+.star-rating-dynamic > span:hover ~ span:before,
+.star-rating-dynamic-active:before {
+   content: "\2605";
+   position: absolute;
+   color: rgb(255, 207, 27);
+}

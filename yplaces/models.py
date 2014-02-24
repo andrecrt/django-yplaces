@@ -127,6 +127,9 @@ class Review(models.Model):
     comment = models.TextField()
     photo = models.OneToOneField(Photo, blank=True, null=True)
     
+    class Meta:
+        ordering = ['-date']
+    
     def __unicode__(self):
         """
         String representation of the model instance.

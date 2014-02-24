@@ -1,6 +1,12 @@
 {% extends 'yplaces/base.html' %}
 
+{% load i18n %}
+
 {% load staticfiles %}
+
+{% block title %}{{ place.name }}{% endblock %}
+
+{% block description %}{{ place.address }}, {{ place.postal_code }} {{ place.city }}. {{ place.country }}.{% endblock %}
 
 {% block body %}
 
@@ -35,7 +41,9 @@
         <ul>
           <li>
             <i class="fa fa-arrows"></i>
-            <a href="http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude }},{{ place.longitude }}&z=17" target="_blank">Directions</a>
+            <a href="http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude }},{{ place.longitude }}&z=17" target="_blank">
+              {% trans 'Directions' %}
+            </a>
           </li>
           {% if place.phone_number %}
             <li>
@@ -52,7 +60,7 @@
           {% if place.website %}
             <li>
               <i class="fa fa-link"></i>
-              <span class="value"><a href="{{ place.website }}" target="_blank">Website</a></span>
+              <span class="value"><a href="{{ place.website }}" target="_blank">{% trans 'Website' %}</a></span>
             </li>
           {% endif %}
         </ul>
@@ -60,7 +68,13 @@
 
       <!-- Average Rating -->
       <div class="rating">
-        <div class="star-rating" style="margin: auto;"><div style="width:{{ rating.get_average_percentage }}%"></div></div>
+        <div class="star-rating" style="margin: auto;">
+          {% if rating %}
+          <div style="width:{{ rating.get_average_percentage }}%"></div>
+          {% else %}
+          <div style="width:0%"></div>
+          {% endif %}
+        </div>
       </div>
 		</div>
 
@@ -77,24 +91,23 @@
       </div>
       <div>
         <i class="fa fa-picture-o fa-5x"></i>
-        <p><strong>View All</strong></p>
+        <p><strong>{% trans 'View All' %}</strong></p>
       </div>
     </div>
 
     <!-- Reviews -->
     <div class="reviews round-border-shadow">
       <div class="actions">
-        <button class="btn btn-primary btn-sm">
+        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addReview">
           <i class="fa fa-star"></i>
-          <strong>Write a Review</strong>
+          <strong>{% trans 'Write a Review' %}</strong>
         </button>
         <button class="btn btn-sm">
           <i class="fa fa-camera"></i>
-          Add Photo
+          {% trans 'Add Photo' %}
         </button>
       </div>
-      {% if place.review_set.all %}
-      <ul>
+      <ul {% if not place.review_set.all %}style="display: none;"{% endif %}>
         {% for review in place.review_set.all %}
         <li>
           <div class="avatar">
@@ -112,7 +125,6 @@
         </li>
         {% endfor %}
       </ul>
-      {% endif %}
     </div>
 
 	</div>
@@ -128,22 +140,76 @@
 	</div>
 </div>
 
+<!--
+  New Review Modal
+-->
+<div class="modal fade" id="addReview" tabindex="-1" role="dialog" aria-labelledby="addReviewLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="addReviewLabel">{% trans 'Review' %}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="messages"></div>
+        <form role="form">
+          <div class="form-group">
+            <label for="rating">{% trans 'Rating' %}</label>
+            <br>
+            <div class="star-rating-dynamic">
+              <span value="5">☆</span><span value="4">☆</span><span value="3">☆</span><span value="2">☆</span><span value="1">☆</span>
+            </div>
+            <select id="rating" style="display: none;">
+              <option></option>
+              <option value="1">☆</option>
+              <option value="2">☆☆</option>
+              <option value="3">☆☆☆</option>
+              <option value="4">☆☆☆☆</option>
+              <option value="5">☆☆☆☆☆</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="comment">{% trans 'Comment' %}</label>
+            <textarea id="comment" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>{% trans 'Photo' %}</label>
+            <input type="file" accept="image/*" name="photo" DISABLED>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Cancel' %}</button>
+        <button id="submit" type="button" class="btn btn-primary">{% trans 'Submit' %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block javascript %}
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-  <script type="application/javascript">
-     /*
-      * Google Maps
-      */
-      function initialize(){
+  <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script>
+
+      /*
+       * Do stuff after page finishes loading.
+       */
+      $(document).ready(function() {
+        initializeMap();
+        initializeReviewModal();
+      });
+     
+      /*
+       * Initialize Map.
+       */
+      function initializeMap(){
       
         // Load the map with the restaurant's coordinates
         var latlng = new google.maps.LatLng({{ place.latitude }}, {{ place.longitude }});
         var myOptions = {
           zoom: 15,
           center: latlng,
-          //disableDefaultUI: true,
           navigationControl: true,
           scrollwheel: false,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -157,6 +223,94 @@
           title: '{{ place.name }}'
         });
       }
-      window.onload = initialize;
+
+      /*
+       * Initialize Review Modal.
+       */
+      function initializeReviewModal() {
+
+          // Set number of stars.
+          $('#addReview .star-rating-dynamic span').on('click', function() {
+              $('#addReview #rating').val($(this).attr('value'));
+          });
+
+          // Hovering out, displays current selection.
+          $('#addReview .star-rating-dynamic').mouseleave(function() {
+              var stars = $('#addReview #rating').val();
+              for(var i=0; i<stars; i++) {
+                  $($('#addReview .star-rating-dynamic').find('span')[4-i]).addClass('star-rating-dynamic-active');  
+              }
+          });
+
+          // Hovering in, hides current selection.
+          $('#addReview .star-rating-dynamic').mouseenter(function() {
+              $('#addReview .star-rating-dynamic').find('span').each(function() { $(this).removeClass('star-rating-dynamic-active'); });
+          });
+
+          // Listen to submit.
+          $('#addReview #submit').on('click', function() {
+
+              $(this).attr('disabled', true);
+
+              // Clear messages.
+              $('#addReview .messages').html('');
+
+              // Validate mandatory parameters.
+              var rating = parseInt($('#addReview #rating').val()); 
+              var comment = $('#addReview #comment').val();
+              if(rating == '' || isNaN(rating) || comment == '') {
+                  var html = '<div class="alert alert-warning"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{% trans "Please provide a rating and a comment" %}</div>';
+                  $('#addReview .messages').prepend(html);
+                  $(this).attr('disabled', false);
+                  return;
+              }
+
+              // Review data.
+              var data = {
+                  rating: rating,
+                  comment: comment
+              }
+
+              // Submit review.
+              $.ajax({
+                  url: '{{ reviews_api_url }}',
+                  type: 'POST',
+                  data: JSON.stringify(data),
+                  dataType: 'JSON',
+                  success: function(data, status, xhr) {
+
+                      // Render comment.
+                      var html = '<li><div class="avatar">';
+                      html += '<img src="' + data.user.photo_url + '" class="img-rounded"></div>';
+                      html += '<div class="comment"><div class="star-rating-sm"><div style="width:' + (data.rating*100/5) + '%"></div></div>';
+                      html += '<div class="message">' + data.comment + '<br>';
+                      html += '<span>' + data.user.name + ' // ' + data.date + '</span></div></div>';
+                      html += '<div class="clear"></div></li>';
+                      $('.place .left-container .reviews ul').prepend(html);
+                      $('.place .left-container .reviews ul').show();
+
+                      // Update Place's average rating.
+                      var placeAverageRating = data.place.rating.average*100/5;
+                      $('.place .rating .star-rating div').css('width', placeAverageRating+'%');
+
+                      // Clear form.
+                      $('#addReview #rating').val('');
+                      $('#addReview #comment').val('');
+                      $(this).attr('disabled', false);
+
+                      // Close modal.
+                      alert('{% trans "Thank you for your review" %}');
+                      $('#addReview').modal('hide');
+
+                  }.bind(this),
+                  error: function(xhr, status, err) {
+                      var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{% trans "Unable to add review" %}</div>';
+                      $('#addReview .messages').prepend(html);
+                      $(this).attr('disabled', false);
+                  }.bind(this)
+              });
+          });
+      }
+      
   </script>
 {% endblock %}
