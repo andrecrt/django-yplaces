@@ -1,16 +1,16 @@
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseForbidden
 from yapi.authentication import ApiKeyAuthentication, SessionAuthentication
 from yapi.decorators import authentication_classes, permission_classes
 from yapi.permissions import IsStaff
 from yapi.resource import Resource
 from yapi.response import HTTPStatus, Response
 
-from serializers import PlaceSerializer
-from yplaces.forms import PlaceForm
-from yplaces.models import Place 
+from serializers import PlaceSerializer, ReviewSerializer
+from yplaces.forms import PlaceForm, ReviewForm
+from yplaces.models import Place, Review
 
 # Instantiate logger.
 logger = logging.getLogger(__name__)
@@ -157,3 +157,130 @@ class PlaceIdHandler(Resource):
                             data={ 'message': 'Invalid parameters', 'parameters': form.errors },
                             serializer=None,
                             status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+            
+            
+class ReviewsHandler(Resource):
+    """
+    API endpoint handler.
+    """
+    # HTTP methods allowed.
+    allowed_methods = ['POST', 'GET']
+    
+    @authentication_classes([SessionAuthentication, ApiKeyAuthentication])
+    def post(self, request, pk):
+        """
+        Process POST request.
+        """
+        # Check if (active) Place with given ID exists.
+        try:
+            place = Place.objects.get(pk=pk, active=True)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Add user and place IDs to data.
+        request.data['user'] = request.auth['user'].pk
+        request.data['place'] = place.pk
+        
+        # Populate form with provided data.
+        form = ReviewForm(request.data)
+        
+        # Create new instance.
+        try:
+            new_instance = form.save()
+            return Response(request=request,
+                            data=new_instance,
+                            serializer=ReviewSerializer,
+                            status=HTTPStatus.SUCCESS_201_CREATED)
+            
+        # Form didn't validate!
+        except ValueError:
+            return Response(request=request,
+                            data={ 'message': 'Invalid parameters', 'parameters': form.errors },
+                            serializer=None,
+                            status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+    
+    def get(self, request, pk):
+        """
+        Process GET request.
+        """
+        # Check if Place with given ID exists.
+        try:
+            place = Place.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # **************** IMPORTANT ***************
+        # Only _staff_ users can access stuff of inactive places.
+        # ******************************************
+        if not place.active and (request.user and not request.user.is_staff):
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Lets start with all.
+        results = place.review_set.all()
+        
+        #
+        # Return.
+        #
+        return Response(request=request,
+                        data=results,
+                        serializer=ReviewSerializer,
+                        status=HTTPStatus.SUCCESS_200_OK)
+        
+        
+class ReviewIdHandler(Resource):
+    """
+    API endpoint handler.
+    """
+    
+    # HTTP methods allowed.
+    allowed_methods = ['GET', 'DELETE']
+    
+    def get(self, request, pk, review_pk):
+        """
+        Process GET request.
+        """
+        # Check if instance with given ID for given Place ID exists. 
+        try:
+            place = Place.objects.get(pk=pk)
+            instance = Review.objects.get(pk=review_pk, place=place)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # **************** IMPORTANT ***************
+        # Only _staff_ users can access stuff of inactive places.
+        # ******************************************
+        if not place.active and (request.user and not request.user.is_staff):
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Return.
+        return Response(request=request,
+                        data=instance,
+                        serializer=ReviewSerializer,
+                        status=HTTPStatus.SUCCESS_200_OK)
+    
+    @authentication_classes([SessionAuthentication, ApiKeyAuthentication])
+    def delete(self, request, pk, review_pk):
+        """
+        Process DELETE request.
+        """
+        # Check if instance with given ID for given Place ID exists.
+        try:
+            place = Place.objects.get(pk=pk)
+            instance = Review.objects.get(pk=review_pk, place=place)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # **************** IMPORTANT ***************
+        # Only _staff_ users can access stuff of inactive places.
+        # ******************************************
+        if not place.active and (request.user and not request.user.is_staff):
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Check if Review belongs to user.
+        elif instance.user != request.auth['user']:
+            return HttpResponseForbidden()
+        
+        # Proceed...
+        else:
+            instance.destroy()
+            return HttpResponse(status=HTTPStatus.SUCCESS_204_NO_CONTENT)

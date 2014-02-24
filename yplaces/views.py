@@ -38,5 +38,5 @@ def place_slug(request, pk, slug):
 
     # Render page
     return render_to_response('yplaces/place.html',
-                              { 'place': place, 'rating': place.get_rating()['value'] },
+                              { 'place': place, 'rating': place.get_rating() },
                               context_instance=RequestContext(request))

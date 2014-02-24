@@ -12,7 +12,7 @@
 	<div class="left-container">
     
     <!-- Details -->
-    <div class="details">
+    <div class="details round-border-shadow">
 
       <!-- Name & Address -->
       <div class="name">
@@ -59,66 +59,62 @@
       </div>
 
       <!-- Average Rating -->
-      <div class="rating" style="background-color: #f4f3f1; padding: 20px; text-align: center;">
-        
-        <!-- Star 1 -->
-        {% if rating < 10 %}
-          <i class="fa fa-star-o fa-3x"></i>
-        {% else %}
-          {% if rating >= 10 and rating < 20 %}
-            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
-          {% else %}
-            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
-          {% endif %}
-        {% endif %}
-
-        <!-- Star 2 -->
-        {% if rating < 30 %}
-          <i class="fa fa-star-o fa-3x"></i>
-        {% else %}
-          {% if rating >= 30 and rating < 40 %}
-            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
-          {% else %}
-            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
-          {% endif %}
-        {% endif %}
-
-        <!-- Star 3 -->
-        {% if rating < 50 %}
-          <i class="fa fa-star-o fa-3x"></i>
-        {% else %}
-          {% if rating >= 50 and rating < 60 %}
-            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
-          {% else %}
-            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
-          {% endif %}
-        {% endif %}
-
-        <!-- Star 4 -->
-        {% if rating < 70 %}
-          <i class="fa fa-star-o fa-3x"></i>
-        {% else %}
-          {% if rating >= 70 and rating < 80 %}
-            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
-          {% else %}
-            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
-          {% endif %}
-        {% endif %}
-
-        <!-- Star 5 -->
-        {% if rating < 90 %}
-          <i class="fa fa-star-o fa-3x"></i>
-        {% else %}
-          {% if rating >= 90 and rating < 100 %}
-            <i class="fa fa-star-half-o fa-3x" style="color: #e3cf7a;"></i>
-          {% else %}
-            <i class="fa fa-star fa-3x" style="color: #e3cf7a;"></i>  
-          {% endif %}
-        {% endif %}
-        
+      <div class="rating">
+        <div class="star-rating" style="margin: auto;"><div style="width:{{ rating.get_average_percentage }}%"></div></div>
       </div>
-
 		</div>
+
+    <!-- Photos -->
+    <div class="photos">
+      <div>
+        <img src="{% static 'yplaces/images/francesinha.jpg' %}" class="img-thumbnail">
+      </div>
+      <div>
+        <img src="{% static 'yplaces/images/francesinha2.jpg' %}" class="img-thumbnail">
+      </div>
+      <div>
+        <img src="{% static 'yplaces/images/francesinha3.jpg' %}" class="img-thumbnail">
+      </div>
+      <div>
+        <i class="fa fa-picture-o fa-5x"></i>
+        <p><strong>View All</strong></p>
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="reviews round-border-shadow">
+      <div class="actions">
+        <button class="btn btn-primary btn-sm">
+          <i class="fa fa-star"></i>
+          <strong>Write a Review</strong>
+        </button>
+        <button class="btn btn-sm">
+          <i class="fa fa-camera"></i>
+          Add Photo
+        </button>
+      </div>
+      {% if place.review_set.all %}
+      <ul>
+        {% for review in place.review_set.all %}
+        <li>
+          <div class="avatar">
+            <img src="{{ review.user.get_photo_url }}" class="img-rounded">
+          </div>
+          <div class="comment">
+            <div class="star-rating-sm"><div style="width:{{ review.get_rating_percentage }}%"></div></div>
+            <div class="message">
+              {{ review.comment }}
+              <br>
+              <span>{{ review.user.name }} // {{ review.date }}</span>
+            </div>
+          </div>
+          <div class="clear"></div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
 	</div>
 	
   <!--
@@ -127,7 +123,7 @@
   <div class="right-container">
 		
     <!-- Map -->
-    <div id="map" style="height: 250px;">
+    <div id="map" class="round-border-shadow">
     </div>
 	</div>
 </div>

@@ -11,7 +11,7 @@ admin.site.register(Place, PlaceAdmin)
 
 
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('place', 'value', 'reviews')
+    list_display = ('place', 'average', 'reviews')
     search_fields = ('place__name',)
 admin.site.register(Rating, RatingAdmin)
 
@@ -23,6 +23,7 @@ admin.site.register(Photo, PhotoAdmin)
 
 
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('place', 'user', 'date', 'rating', 'comment', 'photo')
+    list_display = ('place', 'user', 'date', 'rating', 'photo')
     search_fields = ('place__name', 'user__email', 'comment')
+    list_filter = ('rating',)
 admin.site.register(Review, ReviewAdmin)
