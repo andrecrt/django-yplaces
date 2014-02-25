@@ -1,0 +1,68 @@
+/**
+ * Place's photos page.
+ */
+
+.place-photos {
+    margin: 30px auto 30px auto;
+    width: 970px;
+    overflow: auto;
+}
+
+/* Details */
+.place-photos .details .name {
+    padding: 20px 20px 20px 20px;
+}
+.place-photos .details .name .picture {
+    width: 90px;
+    float: left;
+}
+.place-photos .details .name .picture img {
+	width: 88px;
+	height: 88px;
+}
+.place-photos .details .name .address {
+    float: left;
+    margin-left: 20px;
+}
+.place-photos .details .name .address h1 {
+    margin: 0px;
+}
+.place-photos .details .name .address p {
+    margin: 5px 0 0px;
+}
+.place-photos .details .name .address .rating {
+	margin-top: 3px;
+}
+.place-photos .details .name .meta {
+	float: right;
+	height: 88px;
+	width: 222px;
+	text-align: right;
+	padding-top: 3px;
+	color: #bbb;
+}
+.place-photos .details .name .meta h2 {
+	margin: 0 0 5px 0;
+}
+.place-photos .details .gallery {
+	border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 20px;
+    font-size: 10pt;
+}
+.place-photos .details .gallery ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.place-photos .details .gallery ul li {
+    display: inline;
+    margin-left: 11px;
+}
+.place-photos .details .gallery ul li:first-child {
+    margin-left: 0;
+}
+.place-photos .details .gallery img {
+	width: 300px;
+	height: 300px;
+}

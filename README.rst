@@ -64,6 +64,14 @@ variable necessary for the full URL's of the pictures to be built::
 
     MEDIA_ROOT = os.path.join(BASE_DIR, 'static/uploads/')
     MEDIA_URL = HOST_URL + '/static/uploads/'
+    
+5. Configure template processors so tha every RequestContext will contain a variable request, which is the current HttpRequest. This will be used for stuff
+such as knowing the current path. 
+
+    from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
+    TEMPLATE_CONTEXT_PROCESSORS = TCP + (
+        'django.core.context_processors.request',
+    )
 
 Logs
 ----

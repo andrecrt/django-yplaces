@@ -73,7 +73,12 @@ class PhotoSerializer(BaseSerializer):
         simple = {
             'id': obj.pk,
             'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:photo_id', args=[obj.place.pk, obj.pk]),
-            'image_url': obj.file.url
+            'image_url': obj.file.url,
+            'added_by': {
+                'name': obj.added_by.name,
+                'photo_url': obj.added_by.get_photo_url()
+            },
+            'added_at': obj.added_at.strftime('%Y-%m-%d %H:%M:%S')
         }
         
         # Return.

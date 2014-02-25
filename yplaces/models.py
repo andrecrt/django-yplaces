@@ -99,6 +99,9 @@ class Photo(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     
+    class Meta:
+        ordering = ['-added_at']
+    
     def __unicode__(self):
         """
         String representation of the instance.

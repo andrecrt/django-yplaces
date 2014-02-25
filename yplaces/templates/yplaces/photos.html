@@ -1,0 +1,63 @@
+{% extends 'yplaces/base.html' %}
+
+{% load i18n %}
+
+{% load staticfiles %}
+
+{% block title %}{% trans 'Photos of' %} {{ place.name }}{% endblock %}
+
+{% block description %}{{ place.address }}, {{ place.postal_code }} {{ place.city }}. {{ place.country }}.{% endblock %}
+
+{% block head %}
+  <link href="{% static 'yplaces/css/photos.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class="place-photos">
+
+  <!-- Details -->
+  <div class="details round-border-shadow">
+
+    <!-- Name & Address -->
+    <div class="name">
+      <div class="picture">
+        <img src="{% static 'yplaces/images/photo_placeholder.png' %}" class="img-rounded">
+      </div>
+      <div class="address">
+        <h1>
+          <a href="{% url 'yplaces:slug' pk=place.pk slug=place.name|slugify %}">{{ place.name }}</a>
+        </h1>
+        <p>{{ place.address }}, {{ place.postal_code }} {{ place.city }}</p>
+        <div class="star-rating-sm rating"><div style="width:{{ rating.get_average_percentage|stringformat:'f' }}%"></div></div>
+      </div>
+      <div class="meta">
+        <h2>{{ place.photo_set.all|length }} {% trans 'Photos' %}</h2>
+        <a class="btn btn-default btn-sm" href="{% url 'yplaces:slug' pk=place.pk slug=place.name|slugify %}?action=add_photo">
+          <i class="fa fa-camera"></i>
+          {% trans 'Add Photo' %}
+        </a>
+      </div>
+      <div class="clear"></div>
+    </div>
+
+    <!-- Photos -->
+    <div class="gallery">
+      {% if place.photo_set.all %}
+        <ul>
+          {% for photo in place.photo_set.all %}
+            <li>
+              <img src="{{ photo.file.url }}" class="img-thumbnail">
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {% trans 'No photos :(' %}
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

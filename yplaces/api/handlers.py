@@ -157,7 +157,112 @@ class PlaceIdHandler(Resource):
                             data={ 'message': 'Invalid parameters', 'parameters': form.errors },
                             serializer=None,
                             status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+
+
+class PhotosHandler(Resource):
+    """
+    API endpoint handler.
+    """
+    # HTTP methods allowed.
+    allowed_methods = ['POST', 'GET']
+    
+    @authentication_classes([SessionAuthentication, ApiKeyAuthentication])
+    def post(self, request, pk):
+        """
+        Process POST request.
+        """
+        # Check if (active) Place with given ID exists.
+        try:
+            place = Place.objects.get(pk=pk, active=True)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Add user and place IDs to data.
+        request.data['added_by'] = request.auth['user'].pk
+        request.data['place'] = place.pk
+        
+        # Populate form with provided data.
+        form = PhotoForm(request.POST, request.FILES)
+        
+        # Provided data is valid.
+        if form.is_valid():
             
+            # Save photo.
+            photo = Photo(place=place, file=form.cleaned_data['file'], added_by=request.auth['user'])
+            photo.save()
+            
+            # Return.
+            return Response(request=request,
+                            data=photo,
+                            serializer=PhotoSerializer,
+                            status=HTTPStatus.SUCCESS_201_CREATED)
+        
+        # Form didn't validate!
+        else:
+            return Response(request=request,
+                            data={ 'message': 'Invalid parameters', 'parameters': form.errors },
+                            serializer=None,
+                            status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+    
+    def get(self, request, pk):
+        """
+        Process GET request.
+        """
+        # Check if Place with given ID exists.
+        try:
+            place = Place.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # **************** IMPORTANT ***************
+        # Only _staff_ users can access stuff of inactive places.
+        # ******************************************
+        if not place.active and (request.user and not request.user.is_staff):
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Lets start with all.
+        results = place.photo_set.all()
+        
+        #
+        # Return.
+        #
+        return Response(request=request,
+                        data=results,
+                        serializer=PhotoSerializer,
+                        status=HTTPStatus.SUCCESS_200_OK)
+
+
+class PhotoIdHandler(Resource):
+    """
+    API endpoint handler.
+    """
+    
+    # HTTP methods allowed.
+    allowed_methods = ['GET']
+    
+    def get(self, request, pk, photo_pk):
+        """
+        Process GET request.
+        """
+        # Check if instance with given ID for given Place ID exists. 
+        try:
+            place = Place.objects.get(pk=pk)
+            instance = Photo.objects.get(pk=photo_pk, place=place)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # **************** IMPORTANT ***************
+        # Only _staff_ users can access stuff of inactive places.
+        # ******************************************
+        if not place.active and (request.user and not request.user.is_staff):
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Return.
+        return Response(request=request,
+                        data=instance,
+                        serializer=PhotoSerializer,
+                        status=HTTPStatus.SUCCESS_200_OK)
+
             
 class ReviewsHandler(Resource):
     """
@@ -284,99 +389,3 @@ class ReviewIdHandler(Resource):
         else:
             instance.destroy()
             return HttpResponse(status=HTTPStatus.SUCCESS_204_NO_CONTENT)
-        
-
-class PhotosHandler(Resource):
-    """
-    API endpoint handler.
-    """
-    # HTTP methods allowed.
-    allowed_methods = ['POST', 'GET']
-    
-    @authentication_classes([SessionAuthentication, ApiKeyAuthentication])
-    def post(self, request, pk):
-        """
-        Process POST request.
-        """
-        # Check if (active) Place with given ID exists.
-        try:
-            place = Place.objects.get(pk=pk, active=True)
-        except ObjectDoesNotExist:
-            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
-        
-        # Add user and place IDs to data.
-        request.data['added_by'] = request.auth['user'].pk
-        request.data['place'] = place.pk
-        
-        # Populate form with provided data.
-        form = PhotoForm(request.POST, request.FILES)
-        
-        # Provided data is valid.
-        if form.is_valid():
-            raise Exception('Implement meh!')
-        
-        # Form didn't validate!
-        else:
-            return Response(request=request,
-                            data={ 'message': 'Invalid parameters', 'parameters': form.errors },
-                            serializer=None,
-                            status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
-    
-    def get(self, request, pk):
-        """
-        Process GET request.
-        """
-        # Check if Place with given ID exists.
-        try:
-            place = Place.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
-        
-        # **************** IMPORTANT ***************
-        # Only _staff_ users can access stuff of inactive places.
-        # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
-            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
-        
-        # Lets start with all.
-        results = place.photo_set.all()
-        
-        #
-        # Return.
-        #
-        return Response(request=request,
-                        data=results,
-                        serializer=PhotoSerializer,
-                        status=HTTPStatus.SUCCESS_200_OK)
-        
-        
-class PhotoIdHandler(Resource):
-    """
-    API endpoint handler.
-    """
-    
-    # HTTP methods allowed.
-    allowed_methods = ['GET']
-    
-    def get(self, request, pk, photo_pk):
-        """
-        Process GET request.
-        """
-        # Check if instance with given ID for given Place ID exists. 
-        try:
-            place = Place.objects.get(pk=pk)
-            instance = Photo.objects.get(pk=photo_pk, place=place)
-        except ObjectDoesNotExist:
-            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
-        
-        # **************** IMPORTANT ***************
-        # Only _staff_ users can access stuff of inactive places.
-        # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
-            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
-        
-        # Return.
-        return Response(request=request,
-                        data=instance,
-                        serializer=PhotoSerializer,
-                        status=HTTPStatus.SUCCESS_200_OK)
