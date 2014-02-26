@@ -53,9 +53,7 @@ def place_slug(request, pk, slug):
                               { 'place': place,
                                'rating': place.get_rating(),
                                'photos': photos, 'no_photos': no_photos,
-                               'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]),
-                               'photos_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:photos', args=[place.pk]),
-                               'action': request.GET.get('action', '') },
+                               'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]) },
                               context_instance=RequestContext(request))
     
     
@@ -70,4 +68,8 @@ def photos(request, pk, slug):
         raise Http404
     
     # Render page.
-    return render_to_response('yplaces/photos.html', { 'place': place, 'rating': place.get_rating() }, context_instance=RequestContext(request))
+    return render_to_response('yplaces/photos.html',
+                              { 'place': place,
+                               'rating': place.get_rating(),
+                               'photos_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:photos', args=[place.pk]) },
+                              context_instance=RequestContext(request))

@@ -1,16 +1,4 @@
 /*
- * Do stuff after page finishes loading.
- */
-$(document).ready(function() {
-    initializeMap();
-    initializeReviewModal();
-    initializePhotoModal();
-
-    if(action == 'write_review') { $('#addReview').modal(); }
-    else if(action == 'add_photo') { $('#addPhoto').modal(); }
-});
-
-/*
  * Initialize Map.
  */
 function initializeMap(){
@@ -34,10 +22,19 @@ function initializeMap(){
     });
 }
 
+
 /*
  * Initialize Review Modal.
  */
 function initializeReviewModal() {
+
+    // Clear form when modal is closed.
+    $('#addReview').on('hidden.bs.modal', function(e) {
+        $('#addReview .messages').html('');
+        $('#addReview #rating').val('');
+        $('#addReview #comment').val('');
+        $('#addReview .star-rating-dynamic').find('span').each(function() { $(this).removeClass('star-rating-dynamic-active'); });
+    });
 
     // Set number of stars.
     $('#addReview .star-rating-dynamic span').on('click', function() {
@@ -92,6 +89,9 @@ function initializeReviewModal() {
             dataType: 'JSON',
             success: function(data, status, xhr) {
 
+                // Message.
+                alert(gettext('Thank you for your review'));
+
                 // Render comment.
                 var html = '<li><div class="avatar">';
                 html += '<img src="' + data.user.photo_url + '" class="img-rounded"></div>';
@@ -106,14 +106,11 @@ function initializeReviewModal() {
                 var placeAverageRating = data.place.rating.average*100/5;
                 $('.place .rating .star-rating div').css('width', placeAverageRating+'%');
 
-                // Clear form.
-                $('#addReview #rating').val('');
-                $('#addReview #comment').val('');
-                $(this).attr('disabled', false);
-
                 // Close modal.
-                alert(gettext('Thank you for your review'));
                 $('#addReview').modal('hide');
+
+                // Re-enable submit button.
+                $(this).attr('disabled', false);
 
             }.bind(this),
             error: function(xhr, status, err) {
@@ -122,56 +119,6 @@ function initializeReviewModal() {
                 html += gettext('Unable to add review');
                 html += '</div>';
                 $('#addReview .messages').prepend(html);
-                $(this).attr('disabled', false);
-            }.bind(this)
-        });
-    });
-}
-
-
-/*
- * Initialize Add Photo Modal.
- */
-function initializePhotoModal() {
-
-    // Listen to file selection.
-    $('#addPhoto input').on('change', function() {
-        var input = this;
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                $('#addPhoto #preview').html('<img src="' + e.target.result + '" class="img-thumbnail">');
-                $($('#addPhoto #preview').parent()).show();
-            }
-            reader.readAsDataURL(input.files[0]);
-        }  
-    });
-
-    //Listen to click on upload button.
-    $('#addPhoto #submit').on('click', function() {
-
-        $(this).attr('disabled', true);
-        
-        // Build formdata.
-        var formData = new FormData($('#addPhoto form').get(0));
-        var file = $('#addPhoto input').get(0).files[0];
-        formData.append('file', file);
-
-        // Upload picture.
-        $.ajax({
-            url: photos_api_url,
-            type: 'POST',
-            data: formData,
-            // Options to tell JQuery not to process data or worry about content-type.
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: function(data) {
-                alert(gettext('Picture uploaded'));
-                $(this).attr('disabled', false);
-            }.bind(this),
-            error: function(err) {
-                alert(gettext('Unable to upload picture'));
                 $(this).attr('disabled', false);
             }.bind(this)
         });

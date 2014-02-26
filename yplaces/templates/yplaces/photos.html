@@ -33,10 +33,10 @@
       </div>
       <div class="meta">
         <h2>{{ place.photo_set.all|length }} {% trans 'Photos' %}</h2>
-        <a class="btn btn-default btn-sm" href="{% url 'yplaces:slug' pk=place.pk slug=place.name|slugify %}?action=add_photo">
+        <button class="btn btn-default btn-sm" onclick="uploadPhoto()">
           <i class="fa fa-camera"></i>
           {% trans 'Add Photo' %}
-        </a>
+        </button>
       </div>
       <div class="clear"></div>
     </div>
@@ -44,20 +44,81 @@
     <!-- Photos -->
     <div class="gallery">
       {% if place.photo_set.all %}
-        <ul>
-          {% for photo in place.photo_set.all %}
-            <li>
-              <img src="{{ photo.file.url }}" class="img-thumbnail">
-            </li>
-          {% endfor %}
-        </ul>
+        {% for photo in place.photo_set.all %}
+          <img src="{{ photo.file.url }}" class="img-thumbnail">
+        {% endfor %}
       {% else %}
         {% trans 'No photos :(' %}
       {% endif %}
     </div>
 
   </div>
-
 </div>
 
+<!--
+  Add Photo Modal
+-->
+<div class="modal fade" id="addPhoto" tabindex="-1" role="dialog" aria-labelledby="addPhotoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="addPhotoLabel">{% trans 'Add Photo' %}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="messages"></div>
+        <form role="form">
+          <div class="form-group">
+            <label>{% trans 'File' %}</label>
+            <input type="file" accept="image/*" name="photo">
+          </div>
+          <div class="form-group" style="display:none;">
+            <label>{% trans 'Preview' %}</label>
+            <div id="preview"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Cancel' %}</button>
+        <button id="submit" type="button" class="btn btn-primary">{% trans 'Submit' %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+  <script src="{% static 'yplaces/js/photos.js' %}"></script>
+  <script>
+      /*
+       * Assorted variables.
+       */
+      var photos_api_url = '{{ photos_api_url }}';
+      var request_path = '{{ request.path }}';
+
+      /*
+       * If user is authenticated, open photo submission modal. If not, redirect to login page with respective 'next' URL
+       * pointing back to this (i.e. opening this same page and issuing the modal to be opened).
+       */
+      function uploadPhoto() {
+          if('{{ request.user.is_authenticated }}' == 'True') {
+              $('#addPhoto').modal();
+          } else {
+              window.location = "{% url 'yaccounts:login' %}?next={{ request.path }}?action=upload";
+          }
+      }
+
+      /*
+       * What to do after page finishes loading.
+       */
+      $(document).ready(function() {
+
+          // Initialize stuff.
+          initializePhotoModal();
+
+          // If user is authenticated and 'upload' action is requested..
+          if('{{ request.GET.action }}' == 'upload') { uploadPhoto(); }
+      });
+  </script>
 {% endblock %}
