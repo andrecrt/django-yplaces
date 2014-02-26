@@ -84,21 +84,27 @@
     <div class="photos" {% if no_photos %}style="display: none;{% endif %}">
       <div>
         {% if photos.0 %}
-          <img src="{{ photos.0.file.url }}" class="img-thumbnail">
+          <a class="fancybox" rel="gallery" href="{{ photos.0.file.url }}">
+            <img src="{{ photos.0.file.url }}" class="img-thumbnail">
+          </a>
         {% else %}
           <img src="{% static 'yplaces/images/photo_placeholder.png' %}" class="img-thumbnail">
         {% endif %}
       </div>
       <div>
         {% if photos.1 %}
-          <img src="{{ photos.1.file.url }}" class="img-thumbnail">
+          <a class="fancybox" rel="gallery" href="{{ photos.1.file.url }}">
+            <img src="{{ photos.1.file.url }}" class="img-thumbnail">
+          </a>
         {% else %}
           <img src="{% static 'yplaces/images/photo_placeholder.png' %}" class="img-thumbnail">
         {% endif %}
       </div>
       <div>
         {% if photos.2 %}
-          <img src="{{ photos.2.file.url }}" class="img-thumbnail">
+          <a class="fancybox" rel="gallery" href="{{ photos.2.file.url }}">
+            <img src="{{ photos.2.file.url }}" class="img-thumbnail">
+          </a>
         {% else %}
           <img src="{% static 'yplaces/images/photo_placeholder.png' %}" class="img-thumbnail">
         {% endif %}
@@ -243,6 +249,9 @@
        * What to do after page finishes loading.
        */
       $(document).ready(function() {
+
+          // Initialize photo gallery.
+          $('.fancybox').fancybox({ openEffect: 'none', closeEffect: 'none', nextEffect : 'none', prevEffect: 'none' });
 
           // Initialize stuff.
           initializeMap();

@@ -24,12 +24,12 @@ body {
  */
 .star-rating { 
     background: url(../images/star_blank.png) transparent 0 0 repeat-x;
-    height: 41px;
-    width: 205px;
+    height: 48px;
+    width: 240px;
 }
 .star-rating div { 
     background: url(../images/star.png) transparent 0 0 repeat-x; 
-    height: 41px;
+    height: 48px;
 }
 .star-rating-sm { 
     background: url(../images/star_blank_small.png) transparent 0 0 repeat-x;

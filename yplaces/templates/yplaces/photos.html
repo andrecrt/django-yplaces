@@ -45,11 +45,33 @@
     <div class="gallery">
       {% if place.photo_set.all %}
         {% for photo in place.photo_set.all %}
-          <img src="{{ photo.file.url }}" class="img-thumbnail">
+          <div class="item">
+            <a class="fancybox" rel="gallery" href="{{ photo.file.url }}">
+              <img src="{{ photo.file.url }}" class="photo img-thumbnail">
+            </a>
+            <div class="user-info">
+              <div class="avatar">
+                <img src="{{ photo.added_by.get_photo_url }}" class="img-rounded">
+              </div>
+              <div class="info">
+                <p>
+                  {{ photo.added_by.name }}
+                  <br>
+                  <span>{{ photo.added_at }}</span>
+                </p>
+                {% if photo.review %}
+                  <div class="star-rating-sm rating"><div style="width:{{ photo.review.rating.get_average_percentage|stringformat:'f' }}%"></div></div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
         {% endfor %}
       {% else %}
-        {% trans 'No photos :(' %}
+        <div class="item">     
+          {% trans 'No photos :(' %}
+        </div>
       {% endif %}
+      <div class="clear" style="float: none;"></div>
     </div>
 
   </div>
@@ -113,6 +135,9 @@
        * What to do after page finishes loading.
        */
       $(document).ready(function() {
+
+          // Initialize photo gallery.
+          $('.fancybox').fancybox({ openEffect: 'none', closeEffect: 'none', nextEffect : 'none', prevEffect: 'none' });
 
           // Initialize stuff.
           initializePhotoModal();
