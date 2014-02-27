@@ -1,3 +1,4 @@
+import Image
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -190,6 +191,20 @@ class PhotosHandler(Resource):
             # Save photo.
             photo = Photo(place=place, file=form.cleaned_data['file'], added_by=request.auth['user'])
             photo.save()
+            
+            # Resize image, if necessary, to match maximum width/height.
+            try:
+                size = 1024, 768
+                im = Image.open(photo.file.path)
+                im.thumbnail(size, Image.ANTIALIAS)
+                im.save(photo.file.path, format='JPEG')
+            except IOError:
+                photo.destroy() # Delete photo.
+                logger.error('Error resizing place photo! User: ' + str(request.auth['user'].email) + ', Place: ' + str(place.name) + ', Place ID: ' + str(place.pk))
+                return Response(request=request,
+                            data={ 'message': 'Error uploading place photo #1' },
+                            serializer=None,
+                            status=HTTPStatus.SERVER_ERROR_500_INTERNAL_SERVER_ERROR)
             
             # Return.
             return Response(request=request,

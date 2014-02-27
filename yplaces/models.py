@@ -1,4 +1,5 @@
 import logging
+import os
 from django.db import models
 from django.conf import settings
 
@@ -107,6 +108,13 @@ class Photo(models.Model):
         String representation of the instance.
         """
         return self.place.name
+    
+    def destroy(self):
+        """
+        Deletes Photo model instance and respective file.
+        """
+        os.remove(self.file.path)
+        self.delete()
 
 
 class Review(models.Model):
