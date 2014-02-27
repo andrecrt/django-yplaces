@@ -182,15 +182,15 @@
         <h4 class="modal-title" id="addReviewLabel">{% trans 'Write Review' %}</h4>
       </div>
       <div class="modal-body">
-        <div class="messages"></div>
-        <form role="form">
+        <form role="form" data-validate="salsa">
+          <div id="messages"></div>
           <div class="form-group">
             <label for="rating">{% trans 'Rating' %}</label>
             <br>
             <div class="star-rating-dynamic">
               <span value="5">☆</span><span value="4">☆</span><span value="3">☆</span><span value="2">☆</span><span value="1">☆</span>
             </div>
-            <select id="rating" style="display: none;">
+            <select id="rating" style="display: none;" data-required="true">
               <option></option>
               <option value="1">☆</option>
               <option value="2">☆☆</option>
@@ -201,11 +201,15 @@
           </div>
           <div class="form-group">
             <label for="comment">{% trans 'Comment' %}</label>
-            <textarea id="comment" class="form-control" rows="3"></textarea>
+            <textarea id="comment" class="form-control" rows="3" data-required="true"></textarea>
           </div>
           <div class="form-group">
             <label>{% trans 'Photo' %}</label>
-            <input type="file" accept="image/*" name="photo" DISABLED>
+            <input type="file" accept="image/*" name="photo">
+            <div class="form-group" style="display: none; margin-top: 15px;">
+              <label>{% trans 'Preview' %}</label>
+              <div id="preview"></div>
+            </div>
           </div>
         </form>
       </div>
@@ -258,7 +262,14 @@
           initializeReviewModal();
 
           // If user is authenticated and 'review' action is requested.
-          if('{{ request.GET.action }}' == 'review') { review(); }
+          if('{{ request.GET.action }}' == 'review') {
+
+            // Clear action from URL (to avoid refresh always opening modal)
+            history.pushState('data', '', '{{ request.path }}');
+
+            // Request review modal.
+            review();
+          }
       });
   </script>
 {% endblock %}

@@ -189,22 +189,13 @@ class PhotosHandler(Resource):
         if form.is_valid():
             
             # Save photo.
-            photo = Photo(place=place, file=form.cleaned_data['file'], added_by=request.auth['user'])
-            photo.save()
-            
-            # Resize image, if necessary, to match maximum width/height.
             try:
-                size = 1024, 768
-                im = Image.open(photo.file.path)
-                im.thumbnail(size, Image.ANTIALIAS)
-                im.save(photo.file.path, format='JPEG')
+                photo = Photo.new(place=place, photo_file=form.cleaned_data['file'], user=request.auth['user'])
             except IOError:
-                photo.destroy() # Delete photo.
-                logger.error('Error resizing place photo! User: ' + str(request.auth['user'].email) + ', Place: ' + str(place.name) + ', Place ID: ' + str(place.pk))
                 return Response(request=request,
                             data={ 'message': 'Error uploading place photo #1' },
                             serializer=None,
-                            status=HTTPStatus.SERVER_ERROR_500_INTERNAL_SERVER_ERROR)
+                            status=HTTPStatus.SERVER_ERROR_500_INTERNAL_SERVER_ERROR)    
             
             # Return.
             return Response(request=request,
@@ -297,27 +288,80 @@ class ReviewsHandler(Resource):
         except ObjectDoesNotExist:
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
-        # Add user and place IDs to data.
-        request.data['user'] = request.auth['user'].pk
-        request.data['place'] = place.pk
+        ############################
+        # a) Review without photo. #
+        ############################
         
-        # Populate form with provided data.
-        form = ReviewForm(request.data)
-        
-        # Create new instance.
-        try:
-            new_instance = form.save()
-            return Response(request=request,
-                            data=new_instance,
-                            serializer=ReviewSerializer,
-                            status=HTTPStatus.SUCCESS_201_CREATED)
+        # No file, fetch YAPI parsed payload.
+        if len(request.FILES) == 0:
             
-        # Form didn't validate!
-        except ValueError:
-            return Response(request=request,
-                            data={ 'message': 'Invalid parameters', 'parameters': form.errors },
-                            serializer=None,
-                            status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+            # Add user and place IDs to data.
+            request.data['user'] = request.auth['user'].pk
+            request.data['place'] = place.pk
+            
+            # Populate form with provided data.
+            form = ReviewForm(request.data)
+            
+            # Create new instance.
+            try:
+                new_instance = form.save()
+                return Response(request=request,
+                                data=new_instance,
+                                serializer=ReviewSerializer,
+                                status=HTTPStatus.SUCCESS_201_CREATED)
+                
+            # Form didn't validate!
+            except ValueError:
+                return Response(request=request,
+                                data={ 'message': 'Invalid parameters', 'parameters': form.errors },
+                                serializer=None,
+                                status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+         
+        ###########################
+        # b) Review _WITH_ photo. #
+        ###########################
+        else:
+            
+            # Add user and place IDs to data.
+            request.POST['user'] = request.auth['user'].pk
+            request.POST['place'] = place.pk
+            
+            # Populate forms with provided data.
+            review_form = ReviewForm(request.POST)
+            photo_form = PhotoForm(request.POST, request.FILES)
+            
+            # Provided data is valid.
+            if review_form.is_valid() and photo_form.is_valid():
+                
+                # Save photo.
+                try:
+                    photo = Photo.new(place=place, photo_file=photo_form.cleaned_data['file'], user=request.auth['user'])
+                    
+                    # Create review.
+                    review = review_form.save()
+                    
+                    # Link photo.
+                    review.photo = photo
+                    review.save()
+                    
+                    # Return.
+                    return Response(request=request,
+                                    data=review,
+                                    serializer=ReviewSerializer,
+                                    status=HTTPStatus.SUCCESS_201_CREATED)
+                    
+                except IOError:
+                    return Response(request=request,
+                                data={ 'message': 'Error creating review #1' },
+                                serializer=None,
+                                status=HTTPStatus.SERVER_ERROR_500_INTERNAL_SERVER_ERROR)
+            
+            # Forms didn't validate!
+            else:
+                return Response(request=request,
+                                data={ 'message': 'Invalid parameters', 'parameters': review_form.errors },
+                                serializer=None,
+                                status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
     
     def get(self, request, pk):
         """

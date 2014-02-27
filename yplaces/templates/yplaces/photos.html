@@ -88,11 +88,11 @@
         <h4 class="modal-title" id="addPhotoLabel">{% trans 'Add Photo' %}</h4>
       </div>
       <div class="modal-body">
-        <div class="messages"></div>
-        <form role="form">
+        <form role="form" data-validate="salsa">
+          <div id="messages"></div>
           <div class="form-group">
             <label>{% trans 'File' %}</label>
-            <input type="file" accept="image/*" name="photo">
+            <input id="file" type="file" accept="image/*" name="photo" data-required="true">
           </div>
           <div class="form-group" style="display:none;">
             <label>{% trans 'Preview' %}</label>
@@ -143,7 +143,14 @@
           initializePhotoModal();
 
           // If user is authenticated and 'upload' action is requested..
-          if('{{ request.GET.action }}' == 'upload') { uploadPhoto(); }
+          if('{{ request.GET.action }}' == 'upload') {
+
+            // Clear action from URL (to avoid refresh always opening modal)
+            history.pushState('data', '', '{{ request.path }}');
+
+            // Request upload photo modal.
+            uploadPhoto();
+          }
       });
   </script>
 {% endblock %}

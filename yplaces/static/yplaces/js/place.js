@@ -28,12 +28,20 @@ function initializeMap(){
  */
 function initializeReviewModal() {
 
+    // Initialize form validator.
+    $('#addReview form').salsa();
+
     // Clear form when modal is closed.
     $('#addReview').on('hidden.bs.modal', function(e) {
-        $('#addReview .messages').html('');
+        $('#addReview form').salsa('clearErrors');
+        $('#addReview #messages').html('');
         $('#addReview #rating').val('');
         $('#addReview #comment').val('');
         $('#addReview .star-rating-dynamic').find('span').each(function() { $(this).removeClass('star-rating-dynamic-active'); });
+        $('#addReview input').val('');
+        $('#addReview #preview').html('');
+        $($('#addReview #preview').parent()).hide();
+        $('#addReview #submit').attr('disabled', false);
     });
 
     // Set number of stars.
@@ -54,13 +62,28 @@ function initializeReviewModal() {
         $('#addReview .star-rating-dynamic').find('span').each(function() { $(this).removeClass('star-rating-dynamic-active'); });
     });
 
+    // Listen to file selection.
+    $('#addReview input').on('change', function() {
+        var input = this;
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#addReview #preview').html('<img src="' + e.target.result + '" class="img-thumbnail">');
+                $($('#addReview #preview').parent()).show();
+            }
+            reader.readAsDataURL(input.files[0]);
+        }  
+    });
+
     // Listen to submit.
     $('#addReview #submit').on('click', function() {
 
+        // Disable submit button.
         $(this).attr('disabled', true);
 
-        // Clear messages.
-        $('#addReview .messages').html('');
+        // Clear messages & errors.
+        $('#addReview #messages').html('');
+        $('#addReview form').salsa('clearErrors');
 
         // Validate mandatory parameters.
         var rating = parseInt($('#addReview #rating').val()); 
@@ -70,57 +93,88 @@ function initializeReviewModal() {
             html += '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
             html += gettext('Please provide a rating and a comment');
             html += '</div>';
-            $('#addReview .messages').prepend(html);
+            $('#addReview #messages').prepend(html);
             $(this).attr('disabled', false);
             return;
         }
 
-        // Review data.
-        var data = {
-            rating: rating,
-            comment: comment
+        // Submit review, according to whether a photo was provided or not.
+        var file = $('#addReview input').get(0).files[0];
+        if(file == undefined) {
+            submitReview(rating, comment);
+        } else {
+            submitReviewWithPhoto(rating, comment, file);
         }
+    });
 
-        // Submit review.
+    function submitReview(rating, comment) {
         $.ajax({
             url: reviews_api_url,
             type: 'POST',
-            data: JSON.stringify(data),
+            data: JSON.stringify({ rating: rating, comment: comment }),
             dataType: 'JSON',
             success: function(data, status, xhr) {
-
-                // Message.
-                alert(gettext('Thank you for your review'));
-
-                // Render comment.
-                var html = '<li><div class="avatar">';
-                html += '<img src="' + data.user.photo_url + '" class="img-rounded"></div>';
-                html += '<div class="comment"><div class="star-rating-sm"><div style="width:' + (data.rating*100/5) + '%"></div></div>';
-                html += '<div class="message">' + data.comment + '<br>';
-                html += '<span>' + data.user.name + ' // ' + data.date + '</span></div></div>';
-                html += '<div class="clear"></div></li>';
-                $('.place .left-container .reviews ul').prepend(html);
-                $('.place .left-container .reviews ul').show();
-
-                // Update Place's average rating.
-                var placeAverageRating = data.place.rating.average*100/5;
-                $('.place .rating .star-rating div').css('width', placeAverageRating+'%');
-
-                // Close modal.
-                $('#addReview').modal('hide');
-
-                // Re-enable submit button.
-                $(this).attr('disabled', false);
-
-            }.bind(this),
+                processResponse(data, status, xhr);
+            },
             error: function(xhr, status, err) {
-                var html = '<div class="alert alert-danger">';
-                html += '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                html += gettext('Unable to add review');
-                html += '</div>';
-                $('#addReview .messages').prepend(html);
-                $(this).attr('disabled', false);
-            }.bind(this)
+                $('#addReview form').salsa('processResponse', xhr.status, xhr.responseText);
+                $('#addReview #submit').attr('disabled', false);
+            }
         });
-    });
+    }
+
+    function submitReviewWithPhoto(rating, comment, file) {
+        // Build formdata.
+        var formData = new FormData($('#addReview form').get(0));
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        formData.append('file', file);
+
+        // Submit.
+        $.ajax({
+            url: reviews_api_url,
+            type: 'POST',
+            data: formData,
+            // Options to tell JQuery not to process data or worry about content-type.
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data, status, xhr) {
+                processResponse(data, status, xhr);
+            },
+            error: function(xhr, status, err) {
+                $('#addReview form').salsa('processResponse', xhr.status, xhr.responseText);
+                $('#addReview #submit').attr('disabled', false);
+            }
+        });
+    }
+
+    function processResponse(data, status, xhr) {
+        // Message.
+        alert(gettext('Thank you for your review'));
+
+        // Render comment.
+        var html = '<li><div class="avatar">';
+        html += '<img src="' + data.user.photo_url + '" class="img-rounded"></div>';
+        html += '<div class="comment"><div class="star-rating-sm"><div style="width:' + (data.rating*100/5) + '%"></div></div>';
+        html += '<div class="message">' + data.comment + '<br>';
+        if(data.photo) {
+            html += '<img src="' + data.photo.image_url + '" style="width: 50%; margin: 10px 0 10px 0;" class="img-thumbnail">';
+            html += '<br>';
+        }
+        html += '<span>' + data.user.name + ' // ' + data.date + '</span></div></div>';
+        html += '<div class="clear"></div></li>';
+        $('.place .left-container .reviews ul').prepend(html);
+        $('.place .left-container .reviews ul').show();
+
+        // Update Place's average rating.
+        var placeAverageRating = data.place.rating.average*100/5;
+        $('.place .rating .star-rating div').css('width', placeAverageRating+'%');
+
+        // Close modal.
+        $('#addReview').modal('hide');
+
+        // Re-enable submit button.
+        $('#addReview #submit').attr('disabled', false);
+    }
 }

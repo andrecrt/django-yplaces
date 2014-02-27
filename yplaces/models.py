@@ -1,3 +1,4 @@
+import Image
 import logging
 import os
 from django.db import models
@@ -108,6 +109,29 @@ class Photo(models.Model):
         String representation of the instance.
         """
         return self.place.name
+    
+    @staticmethod
+    def new(place, photo_file, user):
+        """
+        Creates a new photo, saves and resizes it.
+        """
+        # Save photo.
+        photo = Photo(place=place, file=photo_file, added_by=user)
+        photo.save()
+        
+        # Resize image, if necessary, to match maximum width/height.
+        try:
+            size = 1024, 768
+            im = Image.open(photo.file.path)
+            im.thumbnail(size, Image.ANTIALIAS)
+            im.save(photo.file.path, format='JPEG')
+        except IOError:
+            photo.destroy() # Delete photo.
+            logger.error('Error resizing place photo! User: ' + str(user.email) + ', Place: ' + str(place.name) + ', Place ID: ' + str(place.pk))
+            raise
+        
+        # Return.
+        return photo
     
     def destroy(self):
         """

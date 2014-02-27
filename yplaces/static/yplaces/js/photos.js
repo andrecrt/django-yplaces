@@ -3,6 +3,9 @@
  */
 function initializePhotoModal() {
 
+    // Initialize form validator.
+    $('#addPhoto form').salsa();
+
     // Listen to file selection.
     $('#addPhoto input').on('change', function() {
         var input = this;
@@ -19,12 +22,15 @@ function initializePhotoModal() {
     //Listen to click on upload button.
     $('#addPhoto #submit').on('click', function() {
 
+        // Validate form.
+        if(!$('#addPhoto form').salsa('validate')) { return; }
+
+        // Disable submit button.
         $(this).attr('disabled', true);
         
         // Build formdata.
         var formData = new FormData($('#addPhoto form').get(0));
-        var file = $('#addPhoto input').get(0).files[0];
-        formData.append('file', file);
+        formData.append('file', $('#addPhoto input').get(0).files[0]);
 
         // Upload picture.
         $.ajax({
@@ -35,13 +41,13 @@ function initializePhotoModal() {
             cache: false,
             contentType: false,
             processData: false,
-            success: function(data) {
+            success: function(data, status, xhr) {
                 alert(gettext('Picture uploaded'));
                 $(this).attr('disabled', false);
                 window.location = request_path;
             }.bind(this),
-            error: function(err) {
-                alert(gettext('Unable to upload picture'));
+            error: function(xhr, status, err) {
+                $('#addPhoto form').salsa('processResponse', xhr.status, xhr.responseText);
                 $(this).attr('disabled', false);
             }.bind(this)
         });
