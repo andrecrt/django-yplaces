@@ -1,5 +1,6 @@
 import logging
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
@@ -15,6 +16,17 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     return HttpResponse('places')
+
+
+@login_required
+def add(request):
+    """
+    Add new Place.
+    """
+    return render_to_response('yplaces/edit.html',
+                              { 'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index'),
+                               'action': 'POST' },
+                              context_instance=RequestContext(request))
 
 
 def place_id(request, pk):
@@ -56,6 +68,29 @@ def place_slug(request, pk, slug):
                                'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]) },
                               context_instance=RequestContext(request))
     
+
+@login_required
+def edit(request, pk, slug):
+    """
+    Edit Place's information.
+    """
+    # Only staff members.
+    if not request.user.is_staff:
+        raise Http404
+    
+    # Fetch Place with given ID.
+    try:
+        place = Place.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        raise Http404
+    
+    # Render page.
+    return render_to_response('yplaces/edit.html',
+                              { 'place': place,
+                               'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:id', args=[place.pk]),
+                               'action': 'PUT' },
+                              context_instance=RequestContext(request))
+
     
 def photos(request, pk, slug):
     """

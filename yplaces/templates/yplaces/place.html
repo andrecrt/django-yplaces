@@ -30,7 +30,17 @@
   				<img src="{% static 'yplaces/images/default_place_picture.png' %}">
   			</div>
         <div class="address">
-          <h1>{{ place.name }}</h1>
+          <h1>
+            {{ place.name }}
+            {% if request.user.is_staff %}
+              <span style="font-size: 14px; font-weight: normal;">
+                <a href="{% url 'yplaces:edit' pk=place.pk slug=place.name|slugify %}">
+                  <i class="fa fa-pencil-square-o"></i>
+                  Edit
+                </a>
+              </span>
+            {% endif %}
+          </h1>
           <p>
             {{ place.address }}, {{ place.postal_code }} {{ place.city }}
             <br>

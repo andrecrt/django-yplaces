@@ -1,4 +1,3 @@
-import Image
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -29,6 +28,9 @@ class PlacesHandler(Resource):
         """
         Process POST request.
         """
+        # Add additional required info regarding the user that created this Place.
+        request.data['created_by'] = request.auth['user'].pk
+        
         # Populate form with provided data.
         form = PlaceForm(request.data)
         
@@ -140,6 +142,11 @@ class PlaceIdHandler(Resource):
             instance = Place.objects.get(pk=pk)
         except ObjectDoesNotExist:
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Add additional required info regarding the user that created this Place.
+        # IMPORTANT:
+        # Remember that this instance already exists, so basically we want to keep this field value untouched.
+        request.data['created_by'] = instance.created_by.pk
         
         # Populate form with provided data, for given instance.
         form = PlaceForm(request.data, instance=instance)
