@@ -29,7 +29,13 @@
           <a href="{% url 'yplaces:slug' pk=place.pk slug=place.name|slugify %}">{{ place.name }}</a>
         </h1>
         <p>{{ place.address }}, {{ place.postal_code }} {{ place.city }}</p>
-        <div class="star-rating-sm rating"><div style="width:{{ rating.get_average_percentage|stringformat:'f' }}%"></div></div>
+        <div class="star-rating-sm rating">
+          {% if rating %}
+            <div style="width:{{ rating.get_average_percentage|stringformat:'f' }}%"></div>
+          {% else %}
+            <div style="width:0%"></div>
+          {% endif %}
+        </div>
       </div>
       <div class="meta">
         <h2>{{ place.photo_set.all|length }} {% trans 'Photos' %}</h2>

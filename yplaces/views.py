@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http.response import HttpResponse, HttpResponseRedirect, Http404
+from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.text import slugify
@@ -15,7 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 def index(request):
-    return HttpResponse('places')
+    return render_to_response('yplaces/index.html',
+                              { 'title': 'YPLACES',
+                               'description': 'Description',
+                               'places_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index') },
+                              context_instance=RequestContext(request))
 
 
 @login_required
@@ -27,6 +31,13 @@ def add(request):
                               { 'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index'),
                                'action': 'POST' },
                               context_instance=RequestContext(request))
+
+
+def search(request):
+    """
+    Place search.
+    """
+    return render_to_response('yplaces/search.html', context_instance=RequestContext(request))
 
 
 def place_id(request, pk):

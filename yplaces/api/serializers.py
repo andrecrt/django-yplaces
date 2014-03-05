@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.text import slugify
 from yapi.serializers import BaseSerializer
 
 # Instantiate logger.
@@ -21,6 +22,7 @@ class PlaceSerializer(BaseSerializer):
             'id': obj.pk,
             'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:id', args=[obj.pk]),
             'name': obj.name,
+            'slug': slugify(obj.name),
             'address': obj.address,
             'postal_code': obj.postal_code,
             'city': obj.city,
@@ -38,7 +40,9 @@ class PlaceSerializer(BaseSerializer):
             'reviews': {
                 'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[obj.pk])
             },
-            'rating': { 'average': 0, 'reviews': 0 }
+            'rating': { 'average': 0, 'reviews': 0 },
+            'profile_image_url': settings.HOST_URL + settings.STATIC_URL + 'yplaces/images/default_place_picture.png',
+            'marker_image_url': settings.HOST_URL + settings.STATIC_URL + 'yplaces/images/default_place_marker.png'
         }
         
         # Place's rating.

@@ -4,6 +4,8 @@ import os
 from django.db import models
 from django.conf import settings
 
+from utils import Geo
+
 # Instantiate logger.
 logger = logging.getLogger(__name__)
 
@@ -69,6 +71,35 @@ class Place(models.Model):
         
         # Return rating.
         return self
+    
+    @staticmethod
+    def search_radius(latLng, radius, querySet=None):
+        """
+        Searches for Places that are in a given radius of the provided coordinates.
+        
+        Args:
+            latLng: Latitude and longitude.
+            radius: Radius.
+        """
+        # If a query set is provided, use it.
+        if querySet:
+            places = querySet
+        # If not, start with a fresh one, with all Places.
+        else:
+            places = Place.objects.filter()
+        
+        # Filter those that fit into the latitude/longitude square limits.
+        geo_box = Geo.box(latLng, radius)
+        places = places.filter(latitude__range=(geo_box['minLat'], geo_box['maxLat'])).filter(longitude__range=(geo_box['minLon'], geo_box['maxLon']))
+        
+        # Finally, fetch those that are inside the given radius.
+        results = []
+        for place in places:
+            if Geo.distance(latLng, (place.latitude, place.longitude)) <= radius:
+                results.append(place)
+        
+        # Return.
+        return places.filter(pk__in=[place.pk for place in results])
 
 
 class Rating(models.Model):

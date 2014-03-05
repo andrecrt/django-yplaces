@@ -7,8 +7,6 @@
     <meta name="description" content="{% block description %}{% endblock %}">
     <meta name="keywords" content="{% block keywords %}{% endblock %}">
     
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <!-- Bootstrap -->
     <link href="{% static 'yplaces/libs/bootstrap-3.0.3/css/bootstrap.min.css' %}" rel="stylesheet">
     
@@ -35,6 +33,9 @@
   </head>
   
   <body>
+    
+    {% include 'yplaces/navbar.html' %}
+
     {% block body %}{% endblock %}
 
     <!-- Django's i18n for Javascript -->

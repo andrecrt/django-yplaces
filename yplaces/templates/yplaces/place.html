@@ -82,9 +82,9 @@
       <div class="rating">
         <div class="star-rating" style="margin: auto;">
           {% if rating %}
-          <div style="width:{{ rating.get_average_percentage|stringformat:'f' }}%"></div>
+            <div style="width:{{ rating.get_average_percentage|stringformat:'f' }}%"></div>
           {% else %}
-          <div style="width:0%"></div>
+            <div style="width:0%"></div>
           {% endif %}
         </div>
       </div>

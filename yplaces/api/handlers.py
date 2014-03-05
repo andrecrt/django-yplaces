@@ -83,6 +83,57 @@ class PlacesHandler(Resource):
                                 serializer=None,
                                 status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
         
+        ###
+        # Optionally, pagination can be disabled and results returned in single response.
+        try:
+            pagination = request.GET['pagination']
+            ['true', 'false'].index(pagination)
+            pagination = (pagination.lower() == 'true')
+        except KeyError:
+            pagination = True
+        except ValueError:
+            return Response(request=request,
+                            data={ 'message': 'Invalid parameters', 'parameters': { 'pagination': ['Invalid value'] } },
+                            serializer=None,
+                            status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+        
+        ###
+        # Radius search.
+        latLng = request.GET.get('latLng', None)
+        
+        # If coordinates are provided...
+        if latLng:
+            
+            # Validate latitude/longitude pair.
+            try:
+                latLng = [float(i) for i in latLng.split(',')]
+                if len(latLng) != 2:
+                    raise ValueError
+                latLng = (latLng[0], latLng[1])
+            except ValueError:
+                return Response(request=request,
+                                data={ 'message': 'Invalid parameters', 'parameters': { 'latLng': ['Invalid value'] } },
+                                serializer=None,
+                                status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+            
+            # If no radius is provided, default to 0.5
+            radius = request.GET.get('radius', 0.5)
+            
+            # Validate radius.
+            try:
+                radius = float(radius)
+            except ValueError:
+                return Response(request=request,
+                                data={ 'message': 'Invalid parameters', 'parameters': { 'radius': ['Invalid value'] } },
+                                serializer=None,
+                                status=HTTPStatus.CLIENT_ERROR_400_BAD_REQUEST)
+                
+            # Filter results by radius search.
+            filters['latLng'] = request.GET.get('latLng', None)
+            filters['radius'] = radius
+            results = Place.search_radius(latLng=latLng, radius=radius, querySet=results)
+
+        ###
         # Name.
         try:
             name = request.GET['name']
@@ -99,6 +150,7 @@ class PlacesHandler(Resource):
                         data=results,
                         filters=filters,
                         serializer=PlaceSerializer,
+                        pagination=pagination,
                         status=HTTPStatus.SUCCESS_200_OK)
         
         
