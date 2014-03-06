@@ -8,16 +8,28 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.text import slugify
 
-from models import Place
+from models import Place, Rating, Review
 
 # Instantiate logger.
 logger = logging.getLogger(__name__)
 
 
 def index(request):
+    """
+    Index page.
+    """
+    # Top places.
+    top_rating = Rating.objects.all().order_by('-average')[:5]
+    
+    # Fetch latest reviews.
+    reviews = Review.objects.all().order_by('-date')[:5]    
+    
+    # Render page.
     return render_to_response('yplaces/index.html',
                               { 'title': 'YPLACES',
                                'description': 'Description',
+                               'top_rating': top_rating,
+                               'reviews': reviews,
                                'places_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index') },
                               context_instance=RequestContext(request))
 

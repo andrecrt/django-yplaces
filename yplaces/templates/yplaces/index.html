@@ -42,6 +42,42 @@
   </div>
 </div>
 
+<div class="stuff round-border-shadow">
+  <div class="top-places">
+    <h1>{% trans 'Top Places' %}</h1>
+    <ol>
+      {% for rating in top_rating %}
+      <li>
+        <a href="{% url 'yplaces:slug' pk=rating.place.pk slug=rating.place.name|slugify %}">{{ rating.place.name }}</a>
+        <div class="star-rating"><div style="width:{{ rating.get_average_percentage|stringformat:'f' }}%"></div></div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  <div class="recent-activity">
+    <h2>{% trans 'Latest Reviews' %}</h2>
+    <ul>
+      {% for review in reviews %}
+      <li>
+        <div class="avatar">
+          <img src="{{ review.user.get_photo_url }}" class="img-rounded">
+        </div>
+        <div class="comment">
+          <div class="star-rating-sm"><div style="width:{{ review.get_rating_percentage|stringformat:'f' }}%"></div></div>
+          <a href="{% url 'yplaces:slug' pk=review.place.pk slug=review.place.name|slugify %}">{{ review.place.name }}</a>
+          <div class="message" style="margin-top: 10px;">
+            {{ review.comment }}
+            <br>
+            <span>{{ review.user.name }} // {{ review.date }}</span>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block javascript %}

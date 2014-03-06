@@ -34,20 +34,20 @@ function initializeMap(lat, lng, requestLocation){
 
         // When map finishes loading, fetch nearby places.
         google.maps.event.addListenerOnce(map, 'idle', function(){
-            searchNearby(latitude, longitude, getViewableRadius());
+            searchNearby(latitude, longitude, 3);
             $('.map-container .overlay').show();
         });
 
         // When map zoom changes, request nearby places taking the new radius into consideration.
-        google.maps.event.addListener(map, 'zoom_changed', function() {
+        /*google.maps.event.addListener(map, 'zoom_changed', function() {
             searchNearby(latitude, longitude, getViewableRadius());
-        });
+        });*/
 
         // When the user finishes dragging the marker, update lat/long and search nearby places.
         google.maps.event.addListener(marker, 'dragend', function() {
             latitude = marker.getPosition().lat();
             longitude = marker.getPosition().lng();
-            searchNearby(latitude, longitude, getViewableRadius());
+            searchNearby(latitude, longitude, 3);
         });
         
         // When the user clicks in the map, place the marker there, update lat/lon and search nearby places.
@@ -55,7 +55,7 @@ function initializeMap(lat, lng, requestLocation){
             marker.setPosition(evt.latLng);
             latitude = marker.getPosition().lat();
             longitude = marker.getPosition().lng();
-            searchNearby(latitude, longitude, getViewableRadius());
+            searchNearby(latitude, longitude, 3);
         }); 
     }
 }
@@ -121,7 +121,7 @@ function searchNearby(latitude, longitude, radius) {
             }
 
             // When a place is hovered from the list, show it on the map.
-            $('.map-container .overlay .content .results table tbody tr').on('mouseover', function() {
+            $('.map-container .overlay .content .results table tbody tr').on('click', function() {
                 showPlace($(this).attr('place-id'));
             });
 
@@ -152,10 +152,18 @@ function PlaceMarker(place){
 
     // Marker's infowindow.
     google.maps.event.addListener(this.marker, 'click', function() {
-        if (infowindow) { infowindow.close(); }
-        var html = '<h1>' + this.place.name + '</h1>';
-        infowindow = new google.maps.InfoWindow({ content: html });
-        infowindow.open(map, this.marker);
+        if (infowindow && infowindow.place != this.place) {
+            infowindow.close();
+        }
+        if(!infowindow || (infowindow && infowindow.place != this.place) || infowindow.getMap() == null) {
+            var html = '<div style="text-align: left;">';
+            html += '<a href="' + place_href.replace('1', place.id).replace('place-slug', place.slug) + '">' + this.place.name + '</a>';
+            html += '<div class="star-rating-sm"><div style="width:' + (place.rating.average*100/5) + '%"></div></div>';
+            html += place.address + ', ' + place.postal_code + ' ' + place.city;
+            html += '</div>';
+            infowindow = new google.maps.InfoWindow({ content: html, place: this.place });
+            infowindow.open(map, this.marker);    
+        }
     }.bind(this));
 }
 
