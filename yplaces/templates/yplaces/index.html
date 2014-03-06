@@ -26,12 +26,12 @@
     <div class="background"></div>
     <div class="content">
       <h1 style="margin: 0; padding: 0;">{% trans 'Nearby Places' %}</h1>
-      <p style="font-size: 10pt;">{% trans 'Drag the marker to find places near that location!' %}</p>
+      <p style="font-size: 10pt;">{% trans 'Drag the marker to find places near its location!' %}</p>
       <div class="results">
         <table class="table table-hover"><tbody></tbody></table>
       </div>
       <div class="no-results">
-        {% trans 'No results found near your location' %}
+        {% trans 'No results found near that location' %}
         <p>:(</p>
       </div>
       <div class="loading">
@@ -54,6 +54,7 @@
       var map;
       var marker;
       var places = [];
+      var infowindow;
       var places_api_url = '{{ places_api_url }}';
       var static_url = '{{ STATIC_URL }}';
       var place_href = "{% url 'yplaces:slug' pk=1 slug="place-slug" %}";

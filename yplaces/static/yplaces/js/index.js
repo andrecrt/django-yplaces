@@ -35,7 +35,6 @@ function initializeMap(lat, lng, requestLocation){
         // When map finishes loading, fetch nearby places.
         google.maps.event.addListenerOnce(map, 'idle', function(){
             searchNearby(latitude, longitude, getViewableRadius());
-            //searchNearby(latitude, longitude, 42000000);
             $('.map-container .overlay').show();
         });
 
@@ -68,7 +67,7 @@ function searchNearby(latitude, longitude, radius) {
 
     // Hide results and clear list.
     $('.map-container .overlay .content .results').hide();        
-    //$('.map-container .overlay .content .results ul').html('');
+    $('.map-container .overlay .content .results table tbody').html('');
 
     // Hide 'no results' message.
     $('.map-container .overlay .content .no-results').hide();
@@ -87,7 +86,7 @@ function searchNearby(latitude, longitude, radius) {
     $.getJSON(places_api_url, data, function(data, status, xhr) {
 
         // Clear previous Place markers.
-        for(var i=0; i<places.length; i++) { places[i].setMap(null); }
+        for(var i=0; i<places.length; i++) { places[i].marker.setMap(null); }
 
         // a) There are no places for given query.
         if(data.length == 0) {
@@ -104,28 +103,27 @@ function searchNearby(latitude, longitude, radius) {
 
             // For each Place.
             for(var i=0; i<data.length; i++) {
+
+                var place = data[i];
                 
-                // Draw markers on Place's coordinates.
-                var latLng = new google.maps.LatLng(data[i].latitude, data[i].longitude);
-                var place = new google.maps.Marker({
-                    position: latLng,
-                    map: map,
-                    draggable: false,
-                    icon: data[i].marker_image_url
-                });
-                places.push(place);
+                places.push(new PlaceMarker(place));
                 
                 // Show in results list.
-                var html = '<tr>';
+                var html = '<tr place-id="' + place.id + '">';
                 html += '<td>';
-                html += '<a href="' + place_href.replace('1', data[i].id).replace('place-slug', data[i].slug) + '">' + data[i].name + '</a>';
-                html += '<div class="star-rating-sm"><div style="width:' + (data[i].rating.average*100/5) + '%"></div></div>';
+                html += '<a href="' + place_href.replace('1', place.id).replace('place-slug', place.slug) + '">' + place.name + '</a>';
+                html += '<div class="star-rating-sm"><div style="width:' + (place.rating.average*100/5) + '%"></div></div>';
                 //html += '<br>';
-                html += data[i].address + ', ' + data[i].postal_code + ' ' + data[i].city;
+                html += place.address + ', ' + place.postal_code + ' ' + place.city;
                 html += '</td>';
                 html += '</tr>';
                 $('.map-container .overlay .content .results table tbody').prepend(html);
             }
+
+            // When a place is hovered from the list, show it on the map.
+            $('.map-container .overlay .content .results table tbody tr').on('mouseover', function() {
+                showPlace($(this).attr('place-id'));
+            });
 
             // Hide loader.
             $('.map-container .overlay .content .loading').hide();
@@ -134,6 +132,44 @@ function searchNearby(latitude, longitude, radius) {
             $('.map-container .overlay .content .results').show();
         }
     });
+}
+
+/*
+ * Place's marker.
+ */
+function PlaceMarker(place){
+
+    // Place.
+    this.place = place;
+
+    // Create map marker on Place's location.
+    this.marker = new google.maps.Marker({
+        position: new google.maps.LatLng(this.place.latitude, this.place.longitude),
+        map: map,
+        draggable: false,
+        icon: this.place.marker_image_url
+    });
+
+    // Marker's infowindow.
+    google.maps.event.addListener(this.marker, 'click', function() {
+        if (infowindow) { infowindow.close(); }
+        var html = '<h1>' + this.place.name + '</h1>';
+        infowindow = new google.maps.InfoWindow({ content: html });
+        infowindow.open(map, this.marker);
+    }.bind(this));
+}
+
+/*
+ * Show Place's marker on map and center around its location.
+ */
+function showPlace(id) {
+    for(var i=0; i<places.length; i++) {
+        if(places[i].place.id == id) {
+            map.setCenter(new google.maps.LatLng(places[i].place.latitude, places[i].place.longitude));
+            google.maps.event.trigger(places[i].marker, 'click');
+            break;
+        }
+    }
 }
 
 /*
