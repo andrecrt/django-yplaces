@@ -23,7 +23,7 @@ function initializeMap(lat, lng, requestLocation){
         // Load map.
         var latlng = new google.maps.LatLng(latitude, longitude);
         var myOptions = {
-            zoom: 10,
+            zoom: 15,
             center: latlng,
             navigationControl: true,
             scrollwheel: false,
