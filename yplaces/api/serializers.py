@@ -40,15 +40,10 @@ class PlaceSerializer(BaseSerializer):
             'reviews': {
                 'url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[obj.pk])
             },
-            'rating': { 'average': 0, 'reviews': 0 },
+            'rating': obj.get_rating_value(),
             'profile_image_url': settings.HOST_URL + settings.STATIC_URL + 'yplaces/images/default_place_picture.png',
-            'marker_image_url': settings.HOST_URL + settings.STATIC_URL + 'yplaces/images/default_place_marker.png'
+            'marker_image_url': obj.get_marker_image_url()
         }
-        
-        # Place's rating.
-        rating = obj.get_rating()
-        if rating:
-            simple['rating'] = { 'average': rating.average, 'reviews': rating.reviews }
         
         # If user is staff, add aditional info.
         if user and user.is_staff:

@@ -100,6 +100,22 @@ class Place(models.Model):
         
         # Return.
         return places.filter(pk__in=[place.pk for place in results])
+    
+    def get_marker_image_url(self):
+        """
+        Returns the Place's marker image URL.
+        """
+        return settings.HOST_URL + settings.STATIC_URL + 'yplaces/images/default_place_marker.png'
+    
+    def get_rating_value(self):
+        """
+        Return Place's rating.
+        """
+        rating = self.get_rating()
+        if rating:
+            return { 'average': rating.average, 'reviews': rating.reviews }
+        else:
+            return { 'average': 0, 'reviews': 0 }
 
 
 class Rating(models.Model):

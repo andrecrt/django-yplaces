@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -49,7 +50,29 @@ def search(request):
     """
     Place search.
     """
-    return render_to_response('yplaces/search.html', context_instance=RequestContext(request))
+    # Lets start with all..
+    results = Place.objects.filter(active=True)
+    
+    # Search by name.
+    try:
+        name = request.GET['name']
+        results = results.filter(Q(name__icontains=name))
+    except KeyError:
+        name = ''
+    
+    # Search by location.
+    try:
+        location = request.GET['location']
+        results = results.filter(Q(address__icontains=location) | Q(city__icontains=location) | Q(state__icontains=location) | Q(country__icontains=location))
+    except KeyError:
+        location = ''
+    
+    # Render page.
+    return render_to_response('yplaces/search.html',
+                              { 'name': name,
+                                'location': location,
+                                'search_results': results },
+                              context_instance=RequestContext(request))
 
 
 def place_id(request, pk):

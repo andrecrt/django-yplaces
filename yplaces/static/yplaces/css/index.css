@@ -64,12 +64,13 @@
     float: left;
     width: 500px;
     padding: 0 0 0 20px;
+    margin-bottom: 25px;
 }
 .top-places ol {
     margin: 20px 0 0 30px;
 }
 .top-places ol li {
-    font-size: 15pt;
+    font-size: 17pt;
     margin-top: 30px;
 }
 .top-places ol li:first-child {
