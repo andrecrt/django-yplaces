@@ -2,6 +2,8 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import PageNotAnInteger, EmptyPage
+from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http.response import HttpResponseRedirect, Http404
@@ -66,12 +68,27 @@ def search(request):
         results = results.filter(Q(address__icontains=location) | Q(city__icontains=location) | Q(state__icontains=location) | Q(country__icontains=location))
     except KeyError:
         location = ''
+        
+    # Fetch X items and paginate.
+    paginator = Paginator(results, 10)
+    try:
+        page = request.GET.get('page')
+        result_page = paginator.page(page)
+        page = int(page)
+    # If page is not an integer, deliver first page.
+    except PageNotAnInteger:
+        page = 1
+        result_page = paginator.page(page)
+    # If page is out of range (e.g. 9999), deliver last page of results.
+    except EmptyPage:
+        page = paginator.num_pages
+        result_page = paginator.page(page)
     
     # Render page.
     return render_to_response('yplaces/search.html',
                               { 'name': name,
                                 'location': location,
-                                'search_results': results },
+                                'search_results': result_page },
                               context_instance=RequestContext(request))
 
 

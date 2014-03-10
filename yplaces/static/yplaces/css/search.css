@@ -23,6 +23,17 @@
 .search .left-container .results table tbody tr {
     cursor: pointer;    
 }
+.search .left-container .results .pagination {
+    float: right;
+    margin-bottom: 0;
+}
+.search .left-container .results .pagination ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.search .left-container .results .pagination ul .current {
+    margin: 0 5px 0 5px;
+}
 .search .left-container .no-results p {
     margin-top: 20px;
     margin-bottom: 0;
