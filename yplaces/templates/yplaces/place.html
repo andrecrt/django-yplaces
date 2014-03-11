@@ -14,6 +14,57 @@
 
 {% block body %}
 
+<!--
+  Schema.org Microdata
+-->
+<div class="microdata" itemscope itemtype="http://schema.org/LocalBusiness">
+  <span itemprop="name">{{ place.name }}</span>
+  <span itemprop="url">{{ host_url }}{% url 'yplaces:slug' pk=place.pk slug=place.name|slugify %}</span>
+  {% if place.description %}
+    <span itemprop="description">{{ place.description }}</span>
+  {% endif %}
+  <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+    <span itemprop="streetAddress">{{ place.address }}</span>
+    <span itemprop="postalCode">{{ place.postal_code }}</span>
+    <span itemprop="addressLocality">{{ place.city }}</span>,
+    <span itemprop="addressRegion">{{ place.state }}</span>
+  </div>
+  <div itemprop="geo" itemscope itemtype="http://schema.org/GeoCoordinates">
+    <meta itemprop="latitude" content="{{ place.latitude }}" />
+    <meta itemprop="longitude" content="{{ place.longitude }}" />
+  </div>
+  <span itemprop="map">http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude }},{{ place.longitude }}&z=17</span>
+  {% if place.phone_number %}
+    <span itemprop="telephone">{{ place.phone_number }}</span>
+  {% endif %}
+  {% if place.email %}
+    <span itemprop="email">{{ place.email }}</span>
+  {% endif %}
+  <div itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
+    <span itemprop="bestRating">5</span>
+    <span itemprop="ratingValue">{% if rating %}{{ rating.average }}{% else %}0{% endif %}</span>
+    <span itemprop="worstRating">1</span>
+    <span itemprop="reviewCount">{% if rating %}{{ rating.reviews }}{% else %}0{% endif %}</span>
+  </div>
+  {% for review in place.review_set.all %}
+    <div itemprop="review" itemscope itemtype="http://schema.org/Review">
+      <span itemprop="author">{{ review.user.name }}</span>
+      <span itemprop="datePublished">{{ review.date.isoformat }}</span>
+      <div itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+        <span itemprop="bestRating">5</span>
+        <span itemprop="ratingValue">{{ review.rating }}</span>
+        <span itemprop="worstRating">1</span>
+      </div>
+      <span itemprop="description">{{ review.comment }}</span>
+    </div>
+  {% endfor %}
+  {% if not no_photos %}
+    <div itemprop="photo" itemscope itemtype="http://schema.org/Photograph">
+      <span itemprop="url">{{ photos.0.file.url }}</span>
+    </div>
+  {% endif %}
+</div>
+
 <div class="place">
 
   <!--

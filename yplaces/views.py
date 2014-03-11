@@ -128,7 +128,8 @@ def place_slug(request, pk, slug):
                               { 'place': place,
                                'rating': place.get_rating(),
                                'photos': photos, 'no_photos': no_photos,
-                               'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]) },
+                               'reviews_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:reviews', args=[place.pk]),
+                               'host_url': settings.HOST_URL },
                               context_instance=RequestContext(request))
     
 

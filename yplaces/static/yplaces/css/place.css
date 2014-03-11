@@ -2,6 +2,10 @@
  * Place page.
  */
 
+.microdata {
+    display: none;
+}
+
 .place {
     margin: 30px auto 30px auto;
     width: 970px;
