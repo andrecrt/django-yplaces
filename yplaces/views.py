@@ -10,6 +10,7 @@ from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.text import slugify
+from django.utils.translation import ugettext as _
 
 from models import Place, Rating, Review
 
@@ -43,8 +44,10 @@ def add(request):
     Add new Place.
     """
     return render_to_response('yplaces/edit.html',
-                              { 'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index'),
-                               'action': 'POST' },
+                              { 'title': _('Add Place'), 
+                                'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index'),
+                                'action': 'POST',
+                                'next': reverse('yplaces:index') },
                               context_instance=RequestContext(request))
 
 
@@ -151,8 +154,9 @@ def edit(request, pk, slug):
     # Render page.
     return render_to_response('yplaces/edit.html',
                               { 'place': place,
-                               'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:id', args=[place.pk]),
-                               'action': 'PUT' },
+                                'title': _('Edit Place'),
+                                'api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:id', args=[place.pk]),
+                                'action': 'PUT' },
                               context_instance=RequestContext(request))
 
     

@@ -4,7 +4,7 @@
 
 {% load staticfiles %}
 
-{% block title %}{% trans 'Edit Place' %}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block head %}
   <link href="{% static 'yplaces/css/edit.css' %}" rel="stylesheet">
@@ -14,7 +14,7 @@
 
 <div class="details round-border-shadow">    
   <h1 style="margin: 0;">
-    {% trans 'Edit Place' %}
+    {{ title }}
   </h1>
   {% if place %}
     <span style="font-size: 14px;">
@@ -121,6 +121,7 @@
       var geocoder = new google.maps.Geocoder();
       var api_url = '{{ api_url }}';
       var action = '{{ action }}';
+      var next = '{{ next }}';
 
       /*
        * What to do after page finishes loading.

@@ -1,12 +1,17 @@
 import logging
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.http.response import HttpResponse, HttpResponseForbidden
+from django.template import Context
+from django.template.loader import get_template
+from django.utils.translation import ugettext as _
 from yapi.authentication import ApiKeyAuthentication, SessionAuthentication
 from yapi.decorators import authentication_classes, permission_classes
 from yapi.permissions import IsStaff
 from yapi.resource import Resource
 from yapi.response import HTTPStatus, Response
+from yutils.email import EmailMessage
 
 from serializers import PlaceSerializer, PhotoSerializer, ReviewSerializer
 from yplaces.forms import PlaceForm, PhotoForm, ReviewForm
@@ -37,6 +42,43 @@ class PlacesHandler(Resource):
         # Create new instance.
         try:
             new_instance = form.save()
+            
+            # If Place was added by a 'regular' user, notify admin that it is pending aproval.
+            if not request.auth['user'].is_staff:
+                try:
+                    # Email variables.
+                    d = Context({ 'place': new_instance, 'host_url': settings.HOST_URL })
+                    
+                    # Render plaintext email template.
+                    plaintext = get_template('yplaces/email/place_added.txt')
+                    text_content = plaintext.render(d)
+                    
+                    # Render HTML email template.
+                    html = get_template('yplaces/email/place_added.html')
+                    html_content = html.render(d)
+                    
+                    # Email options.
+                    subject = _('Place Added')
+                    from_email = settings.YPLACES['email_from']
+                    to = settings.YPLACES['admin_emails']
+                    
+                    # Build message and send.
+                    email = EmailMessage(sender=from_email,
+                                        recipients=to,
+                                        subject=subject,
+                                        text_content=text_content,
+                                        html_content=html_content,
+                                        tags=['Place Added'])
+                    result = email.send()
+                    
+                    # Check if email wasn't sent.
+                    if not result['sent']:
+                        logger.warning('Email Not Sent! Result: ' + str(result['result']))
+                        raise
+                except:
+                    logger.warning('Unable to send email', exc_info=1)
+            
+            # Return.
             return Response(request=request,
                             data=new_instance,
                             serializer=PlaceSerializer,

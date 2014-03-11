@@ -46,6 +46,7 @@ function initializeForm() {
             success: function(data, status, xhr) {
                 alert(gettext('Changes saved'));
                 $('#submit').attr('disabled', false);
+                if(next != '') { window.location = next; }
             },
             error: function(xhr, status, err) {
                 $('form').salsa('processResponse', xhr.status, xhr.responseText);
