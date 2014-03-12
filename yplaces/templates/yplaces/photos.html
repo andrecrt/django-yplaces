@@ -69,6 +69,14 @@
                   <div class="star-rating-sm rating"><div style="width:{{ photo.review.rating.get_average_percentage|stringformat:'f' }}%"></div></div>
                 {% endif %}
               </div>
+              {% if request.user.is_staff %}
+                <div style="float: right; padding: 9px 9px 0 0;">
+                  <button class="btn btn-xs btn-danger" onclick="deletePhoto(this, {{ photo.pk }});">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    {% trans 'Delete' %}
+                  </button>
+                </div>
+              {% endif %}
             </div>
           </div>
         {% endfor %}

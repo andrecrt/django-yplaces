@@ -226,6 +226,7 @@ class PlaceIdHandler(Resource):
                         serializer=PlaceSerializer,
                         status=HTTPStatus.SUCCESS_200_OK)
     
+    @authentication_classes([SessionAuthentication, ApiKeyAuthentication])
     @permission_classes([IsStaff])
     def put(self, request, pk):
         """
@@ -345,7 +346,7 @@ class PhotoIdHandler(Resource):
     """
     
     # HTTP methods allowed.
-    allowed_methods = ['GET']
+    allowed_methods = ['GET', 'DELETE']
     
     def get(self, request, pk, photo_pk):
         """
@@ -369,6 +370,23 @@ class PhotoIdHandler(Resource):
                         data=instance,
                         serializer=PhotoSerializer,
                         status=HTTPStatus.SUCCESS_200_OK)
+        
+    @authentication_classes([SessionAuthentication, ApiKeyAuthentication])
+    @permission_classes([IsStaff])
+    def delete(self, request, pk, photo_pk):
+        """
+        Process DELETE request.
+        """
+        # Check if instance with given ID for given Place ID exists. 
+        try:
+            place = Place.objects.get(pk=pk)
+            instance = Photo.objects.get(pk=photo_pk, place=place)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
+        
+        # Proceed...
+        instance.destroy()
+        return HttpResponse(status=HTTPStatus.SUCCESS_204_NO_CONTENT)
 
             
 class ReviewsHandler(Resource):

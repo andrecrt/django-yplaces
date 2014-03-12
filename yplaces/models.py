@@ -184,7 +184,15 @@ class Photo(models.Model):
         """
         Deletes Photo model instance and respective file.
         """
+        # If there is a Review associated with the Photo, remove that connection first
+        # (in order for the Review not be deleted)
+        if hasattr(self, 'review'):
+            self.review.unlink_photo()
+        
+        # Delete file.
         os.remove(self.file.path)
+        
+        # Delete model instance.
         self.delete()
 
 
@@ -238,3 +246,10 @@ class Review(models.Model):
         Returns the Review's rating value in percentage.
         """
         return self.rating*100/5
+    
+    def unlink_photo(self):
+        """
+        If the Review is linked to a Photo, remove this link.
+        """
+        self.photo = None
+        self.save()

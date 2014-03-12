@@ -53,3 +53,25 @@ function initializePhotoModal() {
         });
     });
 }
+
+/*
+ * Deletes photo with given ID.
+ */
+function deletePhoto(el, id) {
+    if(confirm('Are you sure?')) {
+        $(el).attr('disabled', true);
+        $.ajax({
+            url: photos_api_url + '/' + id,
+            type: 'DELETE',
+            success: function(data, status, xhr) {
+                alert(gettext('Picture deleted'));
+                $(this).attr('disabled', false);
+                window.location.reload();
+            }.bind(el),
+            error: function(xhr, status, err) {
+                alert(gettext('Error deleting photo'));
+                $(this).attr('disabled', false);
+            }.bind(el)
+        });
+    }
+}
