@@ -65,7 +65,7 @@
         <div class="comment">
           <div class="star-rating-sm"><div style="width:{{ review.get_rating_percentage|stringformat:'f' }}%"></div></div>
           <a href="{% url 'yplaces:slug' pk=review.place.pk slug=review.place.name|slugify %}">{{ review.place.name }}</a>
-          <div class="message" style="margin-top: 10px;">
+          <div class="message" style="margin-top: 10px; width: 303px;">
             {{ review.comment }}
             <br>
             <span>{{ review.user.name }} // {{ review.date }}</span>

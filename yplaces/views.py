@@ -23,7 +23,7 @@ def index(request):
     Index page.
     """
     # Top places.
-    top_rating = Rating.objects.all().order_by('-average')[:5]
+    top_rating = Rating.objects.all().order_by('-relative')[:5]
     
     # Fetch latest reviews.
     reviews = Review.objects.all().order_by('-date')[:5]    

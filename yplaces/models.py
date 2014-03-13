@@ -67,7 +67,12 @@ class Place(models.Model):
         if reviews > 0:
             rating.average = float(total_ratings) / reviews
             rating.reviews = reviews
-            rating.save()    
+            
+            # Calculate relative rating.
+            rating.relative = (rating.average*rating.reviews)/len(Place.objects.filter(active=True))
+            
+            # Shave.
+            rating.save()
         
         # Return rating.
         return self
@@ -125,6 +130,7 @@ class Rating(models.Model):
     place = models.OneToOneField(Place)
     average = models.FloatField(default=0)
     reviews = models.IntegerField(default=0)
+    relative = models.FloatField(default=0)
     
     def __unicode__(self):
         """

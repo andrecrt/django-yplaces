@@ -30,10 +30,10 @@
     <span itemprop="addressRegion">{{ place.state }}</span>
   </div>
   <div itemprop="geo" itemscope itemtype="http://schema.org/GeoCoordinates">
-    <meta itemprop="latitude" content="{{ place.latitude }}" />
-    <meta itemprop="longitude" content="{{ place.longitude }}" />
+    <meta itemprop="latitude" content="{{ place.latitude|stringformat:'f' }}" />
+    <meta itemprop="longitude" content="{{ place.longitude|stringformat:'f' }}" />
   </div>
-  <span itemprop="map">http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude }},{{ place.longitude }}&z=17</span>
+  <span itemprop="map">http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude|stringformat:'f' }},{{ place.longitude|stringformat:'f' }}&z=17</span>
   {% if place.phone_number %}
     <span itemprop="telephone">{{ place.phone_number }}</span>
   {% endif %}
@@ -106,7 +106,7 @@
         <ul>
           <li>
             <i class="fa fa-arrows"></i>
-            <a href="http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude }},{{ place.longitude }}&z=17" target="_blank">{% trans 'Directions' %}</a>
+            <a href="http://maps.google.com/?q={{ place.name|slugify }}@{{ place.latitude|stringformat:'f' }},{{ place.longitude|stringformat:'f' }}&z=17" target="_blank">{% trans 'Directions' %}</a>
           </li>
           {% if place.phone_number %}
             <li>

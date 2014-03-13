@@ -118,8 +118,8 @@
               city: '{{ place.city }}',
               state: '{{ place.state }}',
               country: '{{ place.country }}',
-              latitude: {{ place.latitude }},
-              longitude: {{ place.longitude }},
+              latitude: {{ place.latitude|stringformat:'f' }},
+              longitude: {{ place.longitude|stringformat:'f' }},
               marker_image_url: '{{ place.get_marker_image_url }}',
               rating: {{ place.get_rating_value|safe }}
           }
