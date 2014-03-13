@@ -36,6 +36,7 @@
 }
 .place .left-container .details .name .address p {
     margin: 5px 0 0px;
+    width: 480px;
 }
 .place .left-container .details .contacts {
 	border-top: 1px solid #eee;

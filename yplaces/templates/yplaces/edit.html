@@ -67,15 +67,17 @@
     <div class="form-group">
       <label for="map">
         {% trans 'Exact Location' %}
-        <!--<br>
-        <span class="btn btn-default btn-xs">
-          <i class="fa fa-search"></i>
-          {% trans 'Locate Address' %}
-        </span>-->
+        {% if action == 'PUT' %}
+          <br>
+          <span class="btn btn-default btn-xs" id="search-address">
+            <i class="fa fa-search"></i>
+            {% trans 'Locate Address' %}
+          </span>
+        {% endif %}
       </label>
       <div id="map-messages"></div>
-      <input type="hidden" class="form-control" id="latitude" value="{{ place.latitude }}">
-      <input type="hidden" class="form-control" id="longitude" value="{{ place.longitude }}">
+      <input type="hidden" class="form-control" id="latitude" value="{{ place.latitude|stringformat:'f' }}">
+      <input type="hidden" class="form-control" id="longitude" value="{{ place.longitude|stringformat:'f' }}">
       <div id="map">
         <i class="fa fa-map-marker fa-5x"></i>
         <br>

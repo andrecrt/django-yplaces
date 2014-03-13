@@ -56,7 +56,7 @@ def search(request):
     Place search.
     """
     # Lets start with all..
-    results = Place.objects.filter(active=True)
+    results = Place.objects.filter(active=True).order_by('name')
     
     # Search by name.
     try:

@@ -6,10 +6,18 @@ function initializeForm() {
     // Initialize form validator.
     $('form').salsa();
 
-    // If address changes, perform search.
-    $('#address, #postal_code, #city, #state, #country').on('change', function(){
+    // Search address button.
+    $('#search-address').on('click', function(){
         var address = $('#address').val() + ' ' + $('#postal_code').val() + ' ' + $('#city').val() + ' ' + $('#state').val() + ' ' + $('#country').val();
         searchAddress(address);
+    });
+
+    // If address changes, perform search.
+    $('#address, #postal_code, #city, #state, #country').on('change', function(){
+        if(action != 'PUT') {
+            var address = $('#address').val() + ' ' + $('#postal_code').val() + ' ' + $('#city').val() + ' ' + $('#state').val() + ' ' + $('#country').val();
+            searchAddress(address);
+        }
     });
 
     // Listen to submit.
