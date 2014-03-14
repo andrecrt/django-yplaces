@@ -58,7 +58,7 @@ function initializePhotoModal() {
  * Deletes photo with given ID.
  */
 function deletePhoto(el, id) {
-    if(confirm('Are you sure?')) {
+    if(confirm('DELETE: Are you sure?')) {
         $(el).attr('disabled', true);
         $.ajax({
             url: photos_api_url + '/' + id,

@@ -89,8 +89,8 @@ def search(request):
     
     # Render page.
     return render_to_response('yplaces/search.html',
-                              { 'name': name,
-                                'location': location,
+                              { 'search_name': name,
+                                'search_location': location,
                                 'search_results': result_page },
                               context_instance=RequestContext(request))
 
