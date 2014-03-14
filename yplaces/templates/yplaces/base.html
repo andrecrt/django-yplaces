@@ -30,6 +30,12 @@
     <![endif]-->
 
     {% block head %}{% endblock %}
+
+    <!-- In order for projects that use this app to easily "extend" the CSS.
+         Should be in the end to guarantee(?) that these CSS settings override any others.
+    -->
+    {% include 'yplaces/css.html' %}
+
   </head>
   
   <body>
