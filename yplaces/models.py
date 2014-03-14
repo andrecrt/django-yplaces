@@ -118,7 +118,7 @@ class Place(models.Model):
         """
         rating = self.get_rating()
         if rating:
-            return { 'average': rating.average, 'reviews': rating.reviews }
+            return { 'average': float(rating.average), 'reviews': float(rating.reviews) }
         else:
             return { 'average': 0, 'reviews': 0 }
 
