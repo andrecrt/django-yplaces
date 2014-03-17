@@ -62,7 +62,11 @@ settings.py
         'email_from': { 'name': 'John Doe', 'email': 'john@example.com' },
         
         # Emails of the admins that receive certain emails (e.g. Place waiting to be reviewed)
-    	'admin_emails': [{ 'name': 'BOFH', 'email': 'bofh@foobar.com' }]
+    	'admin_emails': [{ 'name': 'BOFH', 'email': 'bofh@foobar.com' }],
+    	
+    	# The title to be displayed in the app's index page and respective description.
+    	'index_title': 'My Awesome App',
+    	'index_description': 'This is a very awesome app where you can find anything!'
     }
 
 4. Don't forget to set the 'MEDIA_URL' variable, which defines the root folder to where files will be uploaded (e.g. profile pictures) and the

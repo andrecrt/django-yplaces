@@ -22,6 +22,18 @@ def index(request):
     """
     Index page.
     """
+    # Page title.
+    try:
+        title = settings.YPLACES['index_title']
+    except KeyError:
+        title = 'YPLACES'
+        
+    # Page description.
+    try:
+        description = settings.YPLACES['index_description']
+    except KeyError:
+        description = ''
+    
     # Top places.
     top_rating = Rating.objects.all().order_by('-relative')[:5]
     
@@ -30,8 +42,8 @@ def index(request):
     
     # Render page.
     return render_to_response('yplaces/index.html',
-                              { 'title': 'YPLACES',
-                               'description': 'Description',
+                              { 'title': title,
+                               'description': description,
                                'top_rating': top_rating,
                                'reviews': reviews,
                                'places_api_url': settings.HOST_URL + reverse(settings.YPLACES['api_url_namespace'] + ':yplaces:index') },
