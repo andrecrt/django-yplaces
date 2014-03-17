@@ -87,7 +87,7 @@
       </div>
     </div>
     <br>
-    <h3 style="margin: 0 0 20px 0; border-bottom: 1px solid #ccc;">Optional Fields</h3>
+    <h3 style="margin: 0 0 20px 0; border-bottom: 1px solid #ccc;">{% trans 'Optional Fields' %}</h3>
     <div class="form-group">
       <div class="row">
         <div class="col-xs-6">
@@ -101,12 +101,12 @@
       </div>
     </div>
     <div class="form-group">
-      <label for="website" style="font-weight: normal;">{% trans 'Website' %}</label>
+      <label for="website" style="font-weight: normal;">{% trans 'Website URL' %}</label>
       <input type="text" class="form-control" id="website" value="{{ place.website }}">
     </div>
   </form>
   <br>
-  <button id="submit" class="btn btn-primary">Submit</button>
+  <button id="submit" class="btn btn-primary">{% trans 'Submit' %}</button>
 </div>
 
 {% endblock %}
