@@ -1,8 +1,10 @@
 import Image
 import logging
 import os
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.conf import settings
+from django.utils.text import slugify
 
 from utils import Geo
 
@@ -35,6 +37,12 @@ class Place(models.Model):
         String representation of the model instance.
         """
         return self.name
+    
+    def get_absolute_url(self):
+        """
+        Used to create sitemap.xml
+        """
+        return reverse('yplaces:slug', args=[self.pk, slugify(self.name)])
     
     def get_rating(self):
         """

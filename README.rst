@@ -82,6 +82,9 @@ such as knowing the current path.
     TEMPLATE_CONTEXT_PROCESSORS = TCP + (
         'django.core.context_processors.request',
     )
+    
+6. In order to enable sitemap.xml generator for places, make sure the respective django app is installed in 'INSTALLED_APPS':
+    'django.contrib.sitemaps'
 
 Logs
 ----
@@ -109,9 +112,20 @@ URLs
 
     # myproject/urls.py
     # ============
+    
+    from yplaces.sitemap import PlaceSitemap
+    sitemaps = {
+        # any other sitemaps
+        'restaurants': PlaceSitemap
+    }
 
     urlpatterns = patterns('',
        # all other url mappings
+       
+       # Place's Sitemap.
+       url(r'^sitemap\.xml/?$', 'django.contrib.sitemaps.views.sitemap', { 'sitemaps': sitemaps }, name='sitemap'),
+       
+       # Place's Pages.
        url(r'^places', include('yplaces.urls', namespace='yplaces')),
     )
 	
