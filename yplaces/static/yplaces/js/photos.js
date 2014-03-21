@@ -26,7 +26,7 @@ function initializePhotoModal() {
         if(!$('#addPhoto form').salsa('validate')) { return; }
 
         // Disable submit button.
-        $(this).attr('disabled', true);
+        $(this).button('loading');
         
         // Build formdata.
         var formData = new FormData($('#addPhoto form').get(0));
@@ -43,12 +43,12 @@ function initializePhotoModal() {
             processData: false,
             success: function(data, status, xhr) {
                 alert(gettext('Picture uploaded'));
-                $(this).attr('disabled', false);
+                $(this).button('reset');
                 window.location = request_path;
             }.bind(this),
             error: function(xhr, status, err) {
                 $('#addPhoto form').salsa('processResponse', xhr.status, xhr.responseText);
-                $(this).attr('disabled', false);
+                $(this).button('reset');
             }.bind(this)
         });
     });

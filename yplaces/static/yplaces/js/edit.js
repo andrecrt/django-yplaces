@@ -126,8 +126,9 @@ function searchAddress(address) {
                 marker.setPosition(results[0].geometry.location);
                 $('form #latitude').val(marker.getPosition().lat());
                 $('form #longitude').val(marker.getPosition().lng());
+                $('form #map-messages').html('');
             } else {
-                $('form #map-messages').prepend('<div class="alert alert-warning">' + gettext('Address not found! Please place the marker in the correct location.') + '</div>');
+                $('form #map-messages').html('<div class="alert alert-warning">' + gettext('Address not found! Please place the marker in the correct location.') + '</div>');
             }
         }); 
     }

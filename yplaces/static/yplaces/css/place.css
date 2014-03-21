@@ -24,10 +24,12 @@
     padding: 20px 20px 20px 20px;
 }
 .place .left-container .details .name .picture {
+    text-align: center;
     width: 90px;
     float: left;
 }
 .place .left-container .details .name .address {
+    width: 484px;
     float: left;
     margin-left: 20px;
 }

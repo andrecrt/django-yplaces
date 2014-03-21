@@ -41,7 +41,7 @@ function initializeReviewModal() {
         $('#addReview input').val('');
         $('#addReview #preview').html('');
         $($('#addReview #preview').parent()).hide();
-        $('#addReview #submit').attr('disabled', false);
+        $('#addReview #submit').button('reset');
     });
 
     // Set number of stars.
@@ -79,7 +79,7 @@ function initializeReviewModal() {
     $('#addReview #submit').on('click', function() {
 
         // Disable submit button.
-        $(this).attr('disabled', true);
+        $(this).button('loading');
 
         // Clear messages & errors.
         $('#addReview #messages').html('');
@@ -94,7 +94,7 @@ function initializeReviewModal() {
             html += gettext('Please provide a rating and a comment');
             html += '</div>';
             $('#addReview #messages').prepend(html);
-            $(this).attr('disabled', false);
+            $(this).button('reset');
             return;
         }
 
@@ -118,7 +118,7 @@ function initializeReviewModal() {
             },
             error: function(xhr, status, err) {
                 $('#addReview form').salsa('processResponse', xhr.status, xhr.responseText);
-                $('#addReview #submit').attr('disabled', false);
+                $('#addReview #submit').button('reset');
             }
         });
     }
@@ -144,7 +144,7 @@ function initializeReviewModal() {
             },
             error: function(xhr, status, err) {
                 $('#addReview form').salsa('processResponse', xhr.status, xhr.responseText);
-                $('#addReview #submit').attr('disabled', false);
+                $('#addReview #submit').button('reset');
             }
         });
     }
@@ -175,6 +175,6 @@ function initializeReviewModal() {
         $('#addReview').modal('hide');
 
         // Re-enable submit button.
-        $('#addReview #submit').attr('disabled', false);
+        $('#addReview #submit').button('reset');
     }
 }

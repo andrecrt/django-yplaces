@@ -112,6 +112,9 @@ function searchNearby(latitude, longitude, radius) {
                 var html = '<tr place-id="' + place.id + '">';
                 html += '<td>';
                 html += '<a href="' + place_href.replace('1', place.id).replace('place-slug', place.slug) + '">' + place.name + '</a>';
+                if(place.active == false) {
+                    html += ' <span class="label label-warning"><i class="fa fa-exclamation-triangle"></i> ' + gettext('Inactive') + '</span>';
+                }
                 html += '<div class="star-rating-sm"><div style="width:' + (place.rating.average*100/5) + '%"></div></div>';
                 //html += '<br>';
                 html += place.address + ', ' + place.postal_code + ' ' + place.city;

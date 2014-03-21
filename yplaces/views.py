@@ -111,9 +111,20 @@ def place_id(request, pk):
     """
     Checks if the place with given ID exists and, if it does, redirect to the page with respective slug.
     """
+    # Check if Place with given ID exists.
     try:
-        place = Place.objects.get(pk=pk, active=True)
+        place = Place.objects.get(pk=pk)
+        
+        # **************** IMPORTANT ***************
+        # Only show inactive places to _staff_ users.
+        # ******************************************
+        if not place.active and (not request.user or not request.user.is_staff):
+            raise Http404
+        
+        # Redirect to Place slug.
         return HttpResponseRedirect(reverse('yplaces:slug', args=[place.pk, slugify(place.name)]))
+    
+    # Invalid ID.
     except ObjectDoesNotExist:
         raise Http404
 
@@ -122,9 +133,17 @@ def place_slug(request, pk, slug):
     """
     Returns page for the place with the given ID.
     """
-    # Fetch Place with given ID.
+    # Check if Place with given ID exists.
     try:
-        place = Place.objects.get(pk=pk, active=True)
+        place = Place.objects.get(pk=pk)
+        
+        # **************** IMPORTANT ***************
+        # Only show inactive places to _staff_ users.
+        # ******************************************
+        if not place.active and (not request.user or not request.user.is_staff):
+            raise Http404
+    
+    # Invalid ID.
     except ObjectDoesNotExist:
         raise Http404
     

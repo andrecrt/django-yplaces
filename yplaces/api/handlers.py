@@ -106,7 +106,7 @@ class PlacesHandler(Resource):
         # **************** IMPORTANT ***************
         # Only show full listing (i.e. inactive places) to staff users.
         # ******************************************
-        if request.user and not request.user.is_staff:
+        if not request.user or not request.user.is_staff:
             results = results.filter(active=True)
         # If staff, can filter by active status.
         elif request.user and request.user.is_staff:
@@ -217,7 +217,7 @@ class PlaceIdHandler(Resource):
         # **************** IMPORTANT ***************
         # Only show inactive places to _staff_ users.
         # ******************************************
-        if not instance.active and (request.user and not request.user.is_staff):
+        if not instance.active and (not request.user or not request.user.is_staff):
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
         # Return.
@@ -325,7 +325,7 @@ class PhotosHandler(Resource):
         # **************** IMPORTANT ***************
         # Only _staff_ users can access stuff of inactive places.
         # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
+        if not place.active and (not request.user or not request.user.is_staff):
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
         # Lets start with all.
@@ -362,7 +362,7 @@ class PhotoIdHandler(Resource):
         # **************** IMPORTANT ***************
         # Only _staff_ users can access stuff of inactive places.
         # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
+        if not place.active and (not request.user or not request.user.is_staff):
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
         # Return.
@@ -495,7 +495,7 @@ class ReviewsHandler(Resource):
         # **************** IMPORTANT ***************
         # Only _staff_ users can access stuff of inactive places.
         # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
+        if not place.active and (not request.user or not request.user.is_staff):
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
         # Lets start with all.
@@ -532,7 +532,7 @@ class ReviewIdHandler(Resource):
         # **************** IMPORTANT ***************
         # Only _staff_ users can access stuff of inactive places.
         # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
+        if not place.active and (not request.user or not request.user.is_staff):
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
         # Return.
@@ -556,7 +556,7 @@ class ReviewIdHandler(Resource):
         # **************** IMPORTANT ***************
         # Only _staff_ users can access stuff of inactive places.
         # ******************************************
-        if not place.active and (request.user and not request.user.is_staff):
+        if not place.active and (not request.user or not request.user.is_staff):
             return HttpResponse(status=HTTPStatus.CLIENT_ERROR_404_NOT_FOUND)
         
         # Check if Review belongs to user.

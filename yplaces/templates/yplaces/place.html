@@ -4,7 +4,7 @@
 
 {% load staticfiles %}
 
-{% block title %}{{ place.name }}{% endblock %}
+{% block title %}{% include 'yplaces/place_title.html' %}{% endblock %}
 
 {% block description %}{{ place.address }}, {{ place.postal_code }} {{ place.city }}. {{ place.country }}.{% endblock %}
 
@@ -97,6 +97,14 @@
             <br>
             {{ place.country }}
           </p>
+          {% if not place.active %}
+            <div style="font-size: 15pt;">
+              <span class="label label-warning">
+                <i class="fa fa-exclamation-triangle"></i>
+                {% trans 'Inactive' %}
+              </span>
+            </div>
+          {% endif %}
         </div>
         <div class="clear"></div>
       </div>
@@ -145,7 +153,7 @@
     <div class="photos" {% if no_photos %}style="display: none;{% endif %}">
       <div>
         {% if photos.0 %}
-          <a class="fancybox" rel="gallery" href="{{ photos.0.file.url }}">
+          <a class="fancybox" href="{{ photos.0.file.url }}">
             <img src="{{ photos.0.file.url }}" class="img-thumbnail">
           </a>
         {% else %}
@@ -154,7 +162,7 @@
       </div>
       <div>
         {% if photos.1 %}
-          <a class="fancybox" rel="gallery" href="{{ photos.1.file.url }}">
+          <a class="fancybox" href="{{ photos.1.file.url }}">
             <img src="{{ photos.1.file.url }}" class="img-thumbnail">
           </a>
         {% else %}
@@ -163,7 +171,7 @@
       </div>
       <div>
         {% if photos.2 %}
-          <a class="fancybox" rel="gallery" href="{{ photos.2.file.url }}">
+          <a class="fancybox" href="{{ photos.2.file.url }}">
             <img src="{{ photos.2.file.url }}" class="img-thumbnail">
           </a>
         {% else %}
@@ -202,8 +210,8 @@
               {{ review.comment }}
               <br>
               {% if review.photo %}
-              <img src="{{ review.photo.file.url }}" style="width: 50%; margin: 10px 0 10px 0;" class="img-thumbnail">
-              <br>
+                <a class="fancybox" href="{{ review.photo.file.url }}"><img src="{{ review.photo.file.url }}" style="width: 50%; margin: 10px 0 10px 0;" class="img-thumbnail"></a>
+                <br>
               {% endif %}
               <span>{{ review.user.name }} // {{ review.date }}</span>
             </div>
@@ -276,7 +284,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Cancel' %}</button>
-        <button id="submit" type="button" class="btn btn-primary">{% trans 'Submit' %}</button>
+        <button id="submit" type="button" class="btn btn-primary" data-loading-text="{% trans 'Submitting...' %}">{% trans 'Submit' %}</button>
       </div>
     </div>
   </div>
