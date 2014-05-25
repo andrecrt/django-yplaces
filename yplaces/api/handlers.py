@@ -185,6 +185,14 @@ class PlacesHandler(Resource):
         except KeyError:
             pass
         
+        ###
+        # Location.
+        try:
+            location = request.GET['location']
+            results = results.filter(Q(address__icontains=location) | Q(city__icontains=location) | Q(state__icontains=location) | Q(country__icontains=location))
+        except KeyError:
+            location = ''
+        
         #
         # Return.
         #
